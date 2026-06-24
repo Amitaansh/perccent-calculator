@@ -180,7 +180,7 @@ export default function GrowthChart({
                 x={paddingLeft - 8}
                 y={getY(tick) + 4}
                 textAnchor="end"
-                style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', fill: 'var(--slate)' }}
+                style={{ fontFamily: 'var(--font-body)', fontSize: '10px', fill: 'var(--slate)' }}
               >
                 {tick >= 100000 ? `${(tick / 100000).toFixed(0)}L` : formatIndianNumber(tick)}
               </text>
@@ -208,7 +208,7 @@ export default function GrowthChart({
                   x={getX(idx)}
                   y={height - paddingBottom + 18}
                   textAnchor="middle"
-                  style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', fill: 'var(--slate)' }}
+                  style={{ fontFamily: 'var(--font-body)', fontSize: '10px', fill: 'var(--slate)' }}
                 >
                   {d.label}
                 </text>

@@ -140,7 +140,7 @@ export default function DonutChart({
             padding: '20px'
           }}
         >
-          <span style={{ fontSize: '11px', textTransform: 'uppercase', fontFamily: 'var(--font-mono)', color: 'var(--slate)', letterSpacing: '0.05em' }}>
+          <span style={{ fontSize: '11px', textTransform: 'uppercase', fontFamily: 'var(--font-body)', color: 'var(--slate)', letterSpacing: '0.05em' }}>
             {centerLabel}
           </span>
           <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '18px', color: 'var(--ink)', marginTop: '4px' }}>

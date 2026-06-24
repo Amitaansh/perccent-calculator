@@ -12,6 +12,7 @@ interface SliderInputProps {
   symbol: string;
   symbolPosition?: 'prefix' | 'suffix';
   tooltip?: string;
+  labelIcon?: React.ReactNode;
 }
 
 export default function SliderInput({
@@ -23,7 +24,8 @@ export default function SliderInput({
   onChange,
   symbol,
   symbolPosition = 'prefix',
-  tooltip
+  tooltip,
+  labelIcon
 }: SliderInputProps) {
   const [inputValue, setInputValue] = useState(String(value));
   const [isClamped, setIsClamped] = useState(false);
@@ -79,17 +81,14 @@ export default function SliderInput({
     return num.toLocaleString('en-IN');
   };
 
-  // Generate formatted display value
-  const displayVal = symbolPosition === 'prefix' ? `${symbol}${formatNumber(inputValue)}` : `${formatNumber(inputValue)} ${symbol}`;
-
   return (
     <div className="input-group">
       <div className="input-label-row">
         <label className="input-label" title={tooltip}>
+          {labelIcon && <span style={{ display: 'inline-flex', alignItems: 'center', marginRight: '6px' }}>{labelIcon}</span>}
           {label}
-          {tooltip && <span style={{ marginLeft: '4px', cursor: 'help', fontSize: '12px' }}>ℹ️</span>}
         </label>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', width: '120px' }}>
           <input
             type="text"
             className="input-value-chip"
@@ -100,8 +99,8 @@ export default function SliderInput({
             aria-label={label}
           />
           {isClamped && (
-            <span style={{ fontSize: '10px', color: 'var(--amber)', marginTop: '4px', fontWeight: '500' }}>
-              Clamped to range [{min} - {max}]
+            <span style={{ fontSize: '10px', color: 'var(--amber)', marginTop: '4px', fontWeight: '500', textAlign: 'right' }}>
+              Clamped [{min}-{max}]
             </span>
           )}
         </div>

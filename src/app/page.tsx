@@ -1,38 +1,21 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import SliderInput from '@/components/SliderInput';
 import DonutChart from '@/components/DonutChart';
 import GrowthChart from '@/components/GrowthChart';
 import TransparencyPanel from '@/components/TransparencyPanel';
 import ScheduleTable from '@/components/ScheduleTable';
-import { calculateSIP, SIPParams } from '@/lib/calc/sip';
-import { calculateLumpsum, LumpsumParams } from '@/lib/calc/lumpsum';
-import { calculateSWP, solveSustainableWithdrawal, solveLongevity, SWPParams } from '@/lib/calc/swp';
-import { calculateEMI, EMIParams, Prepayment } from '@/lib/calc/emi';
+import { calculateSIP } from '@/lib/calc/sip';
+import { calculateLumpsum } from '@/lib/calc/lumpsum';
+import { calculateSWP, solveSustainableWithdrawal, solveLongevity } from '@/lib/calc/swp';
+import { calculateEMI, Prepayment } from '@/lib/calc/emi';
 import { defaultAdjustments, AdjustmentParams } from '@/lib/calc/adjustments';
 import { getMethodLabel } from '@/lib/calc/rates';
 import { encodeStateToUrl, decodeStateFromUrl, CalculatorState } from '@/utils/urlState';
-import { Sun, Moon, Share2, Download, Plus, Trash2, Scale } from 'lucide-react';
+import { Share2, Download, Plus, Trash2, Scale, PiggyBank, Wallet, Landmark, CircleDollarSign, Calendar, Coins } from 'lucide-react';
 
 export default function Home() {
-  // Theme management
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
-  
-  useEffect(() => {
-    // Detect system theme on load
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const initialTheme = systemPrefersDark ? 'dark' : 'light';
-    setTheme(initialTheme);
-    document.documentElement.setAttribute('data-theme', initialTheme);
-  }, []);
-
-  const toggleTheme = () => {
-    const nextTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(nextTheme);
-    document.documentElement.setAttribute('data-theme', nextTheme);
-  };
-
   // Active mode
   const [mode, setMode] = useState<'sip' | 'lumpsum' | 'swp' | 'emi'>('sip');
 
@@ -99,7 +82,7 @@ export default function Home() {
       const s = decoded.state;
       if (s.monthlyAmount) {
         setSipAmount(s.monthlyAmount);
-        setSwpWithdrawal(s.monthlyAmount); // sync just in case
+        setSwpWithdrawal(s.monthlyAmount);
       }
       if (s.amount) setLumpAmount(s.amount);
       if (s.corpus) setSwpCorpus(s.corpus);
@@ -144,7 +127,7 @@ export default function Home() {
     }
   }, []);
 
-  // Update URL parameters when state changes (debounced/throttled or direct)
+  // Update URL parameters when state changes
   const activeParams = useMemo<CalculatorState>(() => {
     const adjustments: AdjustmentParams = {
       inflationEnabled,
@@ -258,7 +241,6 @@ export default function Home() {
       ltcgRate
     };
 
-    // Determine target variables for config B
     let compareRateMethod = rateMethod;
     let compareTiming = timing;
     let compareStepUp = stepUpEnabled;
@@ -302,7 +284,7 @@ export default function Home() {
         monthlyWithdrawal: swpWithdrawal,
         tenureYears: swpTenure,
         stepUpPct: swpStepUpPct,
-        stepUpEnabled: swpStepUpEnabled, // comparison SWP keeps settings or we can refine
+        stepUpEnabled: swpStepUpEnabled,
         compounding,
         rateMethod: compareRateMethod,
         timing: compareTiming,
@@ -377,8 +359,6 @@ export default function Home() {
   const chartData = useMemo(() => {
     if (!result || !result.schedule) return [];
     
-    // Map monthly schedule to a display-ready format
-    // To prevent rendering 600 points (for 50 years), we downsample to year-end points
     const schedule = result.schedule;
     const yearPoints = schedule.filter((item) => item.month % 12 === 0 || item.month === schedule.length);
 
@@ -391,7 +371,6 @@ export default function Home() {
 
   // Formulas and Descriptions for Transparency Panel
   const transparencyProps = useMemo(() => {
-    const isNominalLabel = rateMethod === 'nominal' ? 'Nominal rate / 12' : 'Effective conversion';
     const compoundingLabel = `${compounding} compounding`;
     const timingLabel = timing === 'begin' ? 'Annuity-due (start-of-period)' : 'Ordinary annuity (end-of-period)';
 
@@ -402,7 +381,6 @@ export default function Home() {
       };
       
       const annualNet = terEnabled ? sipReturn - terRate : sipReturn;
-      const resolvedRate = getMethodLabel(compounding, rateMethod, timing);
 
       return {
         formula: stepUpEnabled ? 'Iterative simulation: Balance[t] = (Balance[t-1] + Contribution[t]) * (1 + i)' : formulas[timing],
@@ -410,14 +388,13 @@ export default function Home() {
           'Monthly amount (P)': `₹${fmt(sipAmount)}`,
           'Rate p.a. (gross)': `${sipReturn}%`,
           'Rate net of TER': `${annualNet}%`,
-          'Tenure (n)': `${sipTenure * 12} months`,
-          'Monthly rate (i)': `${(result as any).estimatedReturns ? 'resolved' : '0%'}`
+          'Tenure (n)': `${sipTenure * 12} months`
         },
         assumptions: [
           `Rate Method: ${rateMethod === 'effective' ? 'Effective' : 'Nominal'}`,
           `Compounding cadence: ${compoundingLabel}`,
           `Contributions timing: ${timingLabel}`,
-          terEnabled ? `TER (Expense ratio) of ${terRate}% p.a. reduces gross returns.` : 'No TER (Expense ratio) applied.',
+          terEnabled ? `TER of ${terRate}% p.a. reduces gross returns.` : 'No TER applied.',
           exitLoadEnabled ? `Exit load of ${exitLoadRate}% applies for redemptions under ${exitLoadLockInMonths} months (FIFO).` : 'No exit load applied.',
           ltcgEnabled ? `LTCG tax of ${ltcgRate}% applied on gains exceeding ₹1.25L exemption.` : 'No LTCG tax applied.'
         ]
@@ -470,29 +447,26 @@ export default function Home() {
         ]
       };
     }
-  }, [mode, sipAmount, sipReturn, sipTenure, stepUpEnabled, stepUpPct, lumpAmount, lumpReturn, lumpTenure, swpCorpus, swpReturn, swpWithdrawal, swpTenure, swpStepUpEnabled, swpStepUpPct, emiAmount, emiRate, emiTenure, isFlatRate, compounding, rateMethod, timing, inflationEnabled, inflationRate, terEnabled, terRate, exitLoadEnabled, exitLoadRate, exitLoadLockInMonths, ltcgEnabled, ltcgExemption, ltcgRate, prepayments, annualEmiIncrease, result]);
+  }, [mode, sipAmount, sipReturn, sipTenure, stepUpEnabled, stepUpPct, lumpAmount, lumpReturn, lumpTenure, swpCorpus, swpReturn, swpWithdrawal, swpTenure, swpStepUpEnabled, swpStepUpPct, emiAmount, emiRate, emiTenure, isFlatRate, compounding, rateMethod, timing, inflationEnabled, inflationRate, terEnabled, terRate, exitLoadEnabled, exitLoadRate, exitLoadLockInMonths, ltcgEnabled, ltcgExemption, ltcgRate, prepayments, annualEmiIncrease]);
 
   return (
     <div id="calculator-content" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      {/* Header */}
+      {/* Header aligned with company template */}
       <header className="header">
         <div className="wrap" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--blue)', fontWeight: 600, marginBottom: '4px' }}>
-              Perccent · Product Shell
-            </div>
-            <h1 style={{ fontSize: '28px', letterSpacing: '-0.02em' }}>Unified Financial Calculator</h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            {/* Curved ribbon pills SVG representing the Perccent logo */}
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="5" y="11" width="18" height="6" rx="3" transform="rotate(-45 14 14)" fill="#3AD77E" />
+              <rect x="5" y="11" width="18" height="6" rx="3" transform="rotate(45 14 14)" fill="#0047BD" />
+            </svg>
+            <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '24px', color: '#0047BD', letterSpacing: '-0.03em' }}>
+              Perccent
+            </span>
           </div>
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <button className="btn btn-secondary" onClick={toggleTheme} aria-label="Toggle theme">
-              {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
-            </button>
-            <button className="btn btn-secondary" onClick={copyShareLink} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Share2 size={16} /> Share Config
-            </button>
-            <button className="btn btn-primary" onClick={exportPDF} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Download size={16} /> Download PDF
-            </button>
+          
+          <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '20px', color: '#1f2937' }}>
+            Financial Calculators
           </div>
         </div>
       </header>
@@ -500,20 +474,31 @@ export default function Home() {
       {/* Main Content wrapper */}
       <main style={{ flex: '1', padding: '32px 0' }}>
         <div className="wrap">
-          {/* Mode Switcher segmented tabs */}
+          
+          {/* Action Row containing export/share links */}
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginBottom: '20px' }}>
+            <button className="btn btn-secondary" onClick={copyShareLink} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Share2 size={16} /> Share Config
+            </button>
+            <button className="btn btn-primary" onClick={exportPDF} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Download size={16} /> Download PDF
+            </button>
+          </div>
+
+          {/* Mode Switcher segmented tabs with Lucide icons (no emojis) */}
           <div className="tabs-container">
             <div className="segmented-control">
               <button className={`tab-btn ${mode === 'sip' ? 'active' : ''}`} onClick={() => { setMode('sip'); setComparisonEnabled(false); }}>
-                📈 SIP
+                <PiggyBank size={16} /> SIP
               </button>
               <button className={`tab-btn ${mode === 'lumpsum' ? 'active' : ''}`} onClick={() => { setMode('lumpsum'); setComparisonEnabled(false); }}>
-                💰 Lumpsum
+                <Wallet size={16} /> Lumpsum
               </button>
               <button className={`tab-btn ${mode === 'swp' ? 'active' : ''}`} onClick={() => { setMode('swp'); setComparisonEnabled(false); }}>
-                🏧 SWP
+                <CircleDollarSign size={16} /> SWP
               </button>
               <button className={`tab-btn ${mode === 'emi' ? 'active' : ''}`} onClick={() => { setMode('emi'); setComparisonEnabled(false); }}>
-                🏦 EMI
+                <Landmark size={16} /> EMI
               </button>
             </div>
           </div>
@@ -523,12 +508,12 @@ export default function Home() {
             <div className="panel-card">
               <h2 style={{ marginBottom: '24px' }}>Inputs</h2>
               
-              {/* Conditional Inputs by Mode */}
+              {/* Conditional Inputs by Mode with prefix label markers and calendar icons */}
               {mode === 'sip' && (
                 <>
-                  <SliderInput label="Monthly investment" value={sipAmount} min={100} max={10000000} step={500} onChange={setSipAmount} symbol="₹" />
-                  <SliderInput label="Expected return (p.a.)" value={sipReturn} min={0} max={40} step={0.5} onChange={setSipReturn} symbol="%" symbolPosition="suffix" />
-                  <SliderInput label="Time period" value={sipTenure} min={1} max={50} step={1} onChange={setSipTenure} symbol="yrs" symbolPosition="suffix" />
+                  <SliderInput label="Monthly investment" value={sipAmount} min={100} max={10000000} step={500} onChange={setSipAmount} symbol="₹" labelIcon={<span style={{ fontWeight: 'bold' }}>₹</span>} />
+                  <SliderInput label="Expected return rate (% p.a.)" value={sipReturn} min={0} max={40} step={0.5} onChange={setSipReturn} symbol="%" symbolPosition="suffix" labelIcon={<span style={{ fontWeight: 'bold' }}>%</span>} />
+                  <SliderInput label="Investment Duration (Years)" value={sipTenure} min={1} max={50} step={1} onChange={setSipTenure} symbol="yrs" symbolPosition="suffix" labelIcon={<Calendar size={15} />} />
                   
                   {/* Step-up options */}
                   <div style={{ margin: '16px 0 24px', borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
@@ -538,7 +523,7 @@ export default function Home() {
                     </label>
                     {stepUpEnabled && (
                       <div style={{ marginTop: '16px' }}>
-                        <SliderInput label="Annual step-up escalation" value={stepUpPct} min={0} max={50} step={1} onChange={setStepUpPct} symbol="%" symbolPosition="suffix" />
+                        <SliderInput label="Annual step-up escalation" value={stepUpPct} min={0} max={50} step={1} onChange={setStepUpPct} symbol="%" symbolPosition="suffix" labelIcon={<span style={{ fontWeight: 'bold' }}>%</span>} />
                       </div>
                     )}
                   </div>
@@ -547,18 +532,18 @@ export default function Home() {
 
               {mode === 'lumpsum' && (
                 <>
-                  <SliderInput label="Total investment amount" value={lumpAmount} min={500} max={10000000} step={1000} onChange={setLumpAmount} symbol="₹" />
-                  <SliderInput label="Expected return (p.a.)" value={lumpReturn} min={0} max={40} step={0.5} onChange={setLumpReturn} symbol="%" symbolPosition="suffix" />
-                  <SliderInput label="Time period" value={lumpTenure} min={1} max={50} step={1} onChange={setLumpTenure} symbol="yrs" symbolPosition="suffix" />
+                  <SliderInput label="Total Investment" value={lumpAmount} min={500} max={10000000} step={1000} onChange={setLumpAmount} symbol="₹" labelIcon={<span style={{ fontWeight: 'bold' }}>₹</span>} />
+                  <SliderInput label="Expected return rate (% p.a.)" value={lumpReturn} min={0} max={40} step={0.5} onChange={setLumpReturn} symbol="%" symbolPosition="suffix" labelIcon={<span style={{ fontWeight: 'bold' }}>%</span>} />
+                  <SliderInput label="Investment Duration (Years)" value={lumpTenure} min={1} max={50} step={1} onChange={setLumpTenure} symbol="yrs" symbolPosition="suffix" labelIcon={<Calendar size={15} />} />
                 </>
               )}
 
               {mode === 'swp' && (
                 <>
-                  <SliderInput label="Initial corpus" value={swpCorpus} min={1000} max={100000000} step={5000} onChange={setSwpCorpus} symbol="₹" />
-                  <SliderInput label="Monthly withdrawal" value={swpWithdrawal} min={100} max={swpCorpus} step={500} onChange={setSwpWithdrawal} symbol="₹" />
-                  <SliderInput label="Expected return (p.a.)" value={swpReturn} min={0} max={40} step={0.5} onChange={setSwpReturn} symbol="%" symbolPosition="suffix" />
-                  <SliderInput label="Tenure" value={swpTenure} min={1} max={50} step={1} onChange={setSwpTenure} symbol="yrs" symbolPosition="suffix" />
+                  <SliderInput label="Initial Corpus" value={swpCorpus} min={1000} max={100000000} step={5000} onChange={setSwpCorpus} symbol="₹" labelIcon={<span style={{ fontWeight: 'bold' }}>₹</span>} />
+                  <SliderInput label="Monthly Withdrawal" value={swpWithdrawal} min={100} max={swpCorpus} step={500} onChange={setSwpWithdrawal} symbol="₹" labelIcon={<span style={{ fontWeight: 'bold' }}>₹</span>} />
+                  <SliderInput label="Expected return rate (% p.a.)" value={swpReturn} min={0} max={40} step={0.5} onChange={setSwpReturn} symbol="%" symbolPosition="suffix" labelIcon={<span style={{ fontWeight: 'bold' }}>%</span>} />
+                  <SliderInput label="Withdrawal Duration (Years)" value={swpTenure} min={1} max={50} step={1} onChange={setSwpTenure} symbol="yrs" symbolPosition="suffix" labelIcon={<Calendar size={15} />} />
                   
                   {/* Step-up options */}
                   <div style={{ margin: '16px 0 24px', borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
@@ -568,7 +553,7 @@ export default function Home() {
                     </label>
                     {swpStepUpEnabled && (
                       <div style={{ marginTop: '16px' }}>
-                        <SliderInput label="Annual escalation" value={swpStepUpPct} min={0} max={50} step={1} onChange={setSwpStepUpPct} symbol="%" symbolPosition="suffix" />
+                        <SliderInput label="Annual escalation" value={swpStepUpPct} min={0} max={50} step={1} onChange={setSwpStepUpPct} symbol="%" symbolPosition="suffix" labelIcon={<span style={{ fontWeight: 'bold' }}>%</span>} />
                       </div>
                     )}
                   </div>
@@ -577,9 +562,9 @@ export default function Home() {
 
               {mode === 'emi' && (
                 <>
-                  <SliderInput label="Loan amount" value={emiAmount} min={1000} max={100000000} step={5000} onChange={setEmiAmount} symbol="₹" />
-                  <SliderInput label="Interest rate (p.a.)" value={emiRate} min={0} max={36} step={0.1} onChange={setEmiRate} symbol="%" symbolPosition="suffix" />
-                  <SliderInput label="Tenure" value={emiTenure} min={1} max={40} step={1} onChange={setEmiTenure} symbol="yrs" symbolPosition="suffix" />
+                  <SliderInput label="Loan Amount" value={emiAmount} min={1000} max={100000000} step={5000} onChange={setEmiAmount} symbol="₹" labelIcon={<span style={{ fontWeight: 'bold' }}>₹</span>} />
+                  <SliderInput label="Interest Rate (% p.a.)" value={emiRate} min={0} max={36} step={0.1} onChange={setEmiRate} symbol="%" symbolPosition="suffix" labelIcon={<span style={{ fontWeight: 'bold' }}>%</span>} />
+                  <SliderInput label="Loan Tenure (Years)" value={emiTenure} min={1} max={40} step={1} onChange={setEmiTenure} symbol="yrs" symbolPosition="suffix" labelIcon={<Calendar size={15} />} />
                   
                   {/* Flat vs Reducing toggle */}
                   <div style={{ margin: '16px 0', display: 'flex', gap: '24px' }}>
@@ -598,7 +583,7 @@ export default function Home() {
                     <div style={{ borderTop: '1px solid var(--border)', paddingTop: '16px', marginTop: '16px' }}>
                       <h3 style={{ marginBottom: '12px' }}>Prepayments &amp; Escalation</h3>
                       
-                      <SliderInput label="Annual EMI Increase" value={annualEmiIncrease} min={0} max={30} step={0.5} onChange={setAnnualEmiIncrease} symbol="%" symbolPosition="suffix" />
+                      <SliderInput label="Annual EMI Increase" value={annualEmiIncrease} min={0} max={30} step={0.5} onChange={setAnnualEmiIncrease} symbol="%" symbolPosition="suffix" labelIcon={<span style={{ fontWeight: 'bold' }}>%</span>} />
                       
                       {/* Prepayments List */}
                       <div style={{ marginTop: '16px' }}>
@@ -635,9 +620,9 @@ export default function Home() {
                           <div style={{ maxHeight: '150px', overflowY: 'auto', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', padding: '8px' }}>
                             {prepayments.map((p) => (
                               <div key={p.month} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 8px', borderBottom: '1px solid var(--border)' }}>
-                                <span className="mono" style={{ fontSize: '13px' }}>Month {p.month}</span>
+                                <span style={{ fontSize: '13px' }}>Month {p.month}</span>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                  <span className="mono" style={{ fontSize: '13px', fontWeight: 'bold' }}>₹{fmt(p.amount)}</span>
+                                  <span style={{ fontSize: '13px', fontWeight: 'bold' }}>₹{fmt(p.amount)}</span>
                                   <Trash2 size={14} color="red" style={{ cursor: 'pointer' }} onClick={() => removePrepayment(p.month)} />
                                 </div>
                               </div>
@@ -710,7 +695,7 @@ export default function Home() {
                   </label>
                   {inflationEnabled && (
                     <div style={{ marginTop: '8px', paddingLeft: '20px' }}>
-                      <SliderInput label="Annual Inflation Rate" value={inflationRate} min={1} max={20} step={0.5} onChange={setInflationRate} symbol="%" symbolPosition="suffix" />
+                      <SliderInput label="Annual Inflation Rate" value={inflationRate} min={1} max={20} step={0.5} onChange={setInflationRate} symbol="%" symbolPosition="suffix" labelIcon={<span style={{ fontWeight: 'bold' }}>%</span>} />
                     </div>
                   )}
                 </div>
@@ -723,7 +708,7 @@ export default function Home() {
                   </label>
                   {terEnabled && (
                     <div style={{ marginTop: '8px', paddingLeft: '20px' }}>
-                      <SliderInput label="Annual Expense Ratio" value={terRate} min={0.1} max={5} step={0.05} onChange={setTerRate} symbol="%" symbolPosition="suffix" />
+                      <SliderInput label="Annual Expense Ratio" value={terRate} min={0.1} max={5} step={0.05} onChange={setTerRate} symbol="%" symbolPosition="suffix" labelIcon={<span style={{ fontWeight: 'bold' }}>%</span>} />
                     </div>
                   )}
                 </div>
@@ -736,8 +721,8 @@ export default function Home() {
                   </label>
                   {exitLoadEnabled && (
                     <div style={{ marginTop: '8px', paddingLeft: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      <SliderInput label="Exit Load Rate" value={exitLoadRate} min={0.1} max={5} step={0.1} onChange={setExitLoadRate} symbol="%" symbolPosition="suffix" />
-                      <SliderInput label="Lock-in Period" value={exitLoadLockInMonths} min={1} max={36} step={1} onChange={setExitLoadLockInMonths} symbol="mo" symbolPosition="suffix" />
+                      <SliderInput label="Exit Load Rate" value={exitLoadRate} min={0.1} max={5} step={0.1} onChange={setExitLoadRate} symbol="%" symbolPosition="suffix" labelIcon={<span style={{ fontWeight: 'bold' }}>%</span>} />
+                      <SliderInput label="Lock-in Period" value={exitLoadLockInMonths} min={1} max={36} step={1} onChange={setExitLoadLockInMonths} symbol="mo" symbolPosition="suffix" labelIcon={<Calendar size={15} />} />
                     </div>
                   )}
                 </div>
@@ -750,8 +735,8 @@ export default function Home() {
                   </label>
                   {ltcgEnabled && (
                     <div style={{ marginTop: '8px', paddingLeft: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      <SliderInput label="LTCG Exemption" value={ltcgExemption} min={10000} max={500000} step={5000} onChange={setLtcgExemption} symbol="₹" />
-                      <SliderInput label="LTCG Tax Rate" value={ltcgRate} min={5} max={30} step={0.5} onChange={setLtcgRate} symbol="%" symbolPosition="suffix" />
+                      <SliderInput label="LTCG Exemption" value={ltcgExemption} min={10000} max={500000} step={5000} onChange={setLtcgExemption} symbol="₹" labelIcon={<span style={{ fontWeight: 'bold' }}>₹</span>} />
+                      <SliderInput label="LTCG Tax Rate" value={ltcgRate} min={5} max={30} step={0.5} onChange={setLtcgRate} symbol="%" symbolPosition="suffix" labelIcon={<span style={{ fontWeight: 'bold' }}>%</span>} />
                     </div>
                   )}
                 </div>
@@ -759,67 +744,72 @@ export default function Home() {
             </div>
 
             {/* Right Panel: Results & Visualization */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-              <div className="panel-card" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
-                <h2 style={{ marginBottom: '20px' }}>Summary</h2>
-                
-                {/* Headline numbers based on Mode */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '24px' }}>
-                  {mode === 'sip' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+              
+              {/* Summary Card with Light Blue summary-box layout (matching screenshot 1) */}
+              <div className="panel-card">
+                <div className="summary-box">
+                  <div className="summary-title">
+                    {mode === 'emi' ? 'Loan Summary' : 'Investment Summary'}
+                  </div>
+                  
+                  {/* SIP / Lumpsum summary item list */}
+                  {(mode === 'sip' || mode === 'lumpsum') && (
                     <>
-                      <div>
-                        <div className="text-mute" style={{ fontSize: '12px', textTransform: 'uppercase', fontFamily: 'var(--font-mono)', letterSpacing: '0.04em' }}>Invested Corpus</div>
-                        <div style={{ fontSize: '24px', fontWeight: 800, fontFamily: 'var(--font-display)' }}>₹{fmt((result as any).invested)}</div>
+                      <div className="summary-item">
+                        <div className="summary-label">Total Investment</div>
+                        <div className="summary-value">₹{fmt((result as any).invested)}</div>
                       </div>
-                      <div>
-                        <div className="text-mute" style={{ fontSize: '12px', textTransform: 'uppercase', fontFamily: 'var(--font-mono)', letterSpacing: '0.04em' }}>Maturity Value (Net)</div>
-                        <div style={{ fontSize: '24px', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--blue)' }}>₹{fmt((result as any).maturityValueNet)}</div>
+                      <div className="summary-item">
+                        <div className="summary-label">Estimated Returns</div>
+                        <div className="summary-value summary-value-highlight">₹{fmt((result as any).maturityValueNet - (result as any).invested)}</div>
+                      </div>
+                      <div className="summary-item">
+                        <div className="summary-label">Future Value</div>
+                        <div className="summary-value" style={{ fontSize: '24px', fontWeight: 800 }}>₹{fmt((result as any).maturityValueNet)}</div>
                       </div>
                     </>
                   )}
 
-                  {mode === 'lumpsum' && (
-                    <>
-                      <div>
-                        <div className="text-mute" style={{ fontSize: '12px', textTransform: 'uppercase', fontFamily: 'var(--font-mono)', letterSpacing: '0.04em' }}>Principal Invested</div>
-                        <div style={{ fontSize: '24px', fontWeight: 800, fontFamily: 'var(--font-display)' }}>₹{fmt((result as any).invested)}</div>
-                      </div>
-                      <div>
-                        <div className="text-mute" style={{ fontSize: '12px', textTransform: 'uppercase', fontFamily: 'var(--font-mono)', letterSpacing: '0.04em' }}>Maturity Value (Net)</div>
-                        <div style={{ fontSize: '24px', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--blue)' }}>₹{fmt((result as any).maturityValueNet)}</div>
-                      </div>
-                    </>
-                  )}
-
+                  {/* SWP summary item list */}
                   {mode === 'swp' && (
                     <>
-                      <div>
-                        <div className="text-mute" style={{ fontSize: '12px', textTransform: 'uppercase', fontFamily: 'var(--font-mono)', letterSpacing: '0.04em' }}>Total Withdrawn</div>
-                        <div style={{ fontSize: '24px', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--amber)' }}>₹{fmt((result as any).totalWithdrawn)}</div>
+                      <div className="summary-item">
+                        <div className="summary-label">Initial Corpus</div>
+                        <div className="summary-value">₹{fmt(swpCorpus)}</div>
                       </div>
-                      <div>
-                        <div className="text-mute" style={{ fontSize: '12px', textTransform: 'uppercase', fontFamily: 'var(--font-mono)', letterSpacing: '0.04em' }}>Closing Corpus</div>
-                        <div style={{ fontSize: '24px', fontWeight: 800, fontFamily: 'var(--font-display)' }}>₹{fmt((result as any).closingCorpus)}</div>
+                      <div className="summary-item">
+                        <div className="summary-label">Total Payouts (Withdrawn)</div>
+                        <div className="summary-value summary-value-highlight">₹{fmt((result as any).totalWithdrawn)}</div>
+                      </div>
+                      <div className="summary-item">
+                        <div className="summary-label">Final Balance (Remaining Corpus)</div>
+                        <div className="summary-value" style={{ fontSize: '24px', fontWeight: 800 }}>₹{fmt((result as any).closingCorpus)}</div>
                       </div>
                     </>
                   )}
 
+                  {/* EMI summary item list */}
                   {mode === 'emi' && (
                     <>
-                      <div>
-                        <div className="text-mute" style={{ fontSize: '12px', textTransform: 'uppercase', fontFamily: 'var(--font-mono)', letterSpacing: '0.04em' }}>Monthly EMI</div>
-                        <div style={{ fontSize: '24px', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--blue)' }}>₹{fmt((result as any).emi)}</div>
+                      <div className="summary-item">
+                        <div className="summary-label">Principal Amount</div>
+                        <div className="summary-value">₹{fmt(emiAmount)}</div>
                       </div>
-                      <div>
-                        <div className="text-mute" style={{ fontSize: '12px', textTransform: 'uppercase', fontFamily: 'var(--font-mono)', letterSpacing: '0.04em' }}>Total Interest Payable</div>
-                        <div style={{ fontSize: '24px', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--amber)' }}>₹{fmt((result as any).totalInterest)}</div>
+                      <div className="summary-item">
+                        <div className="summary-label">Interest Payable</div>
+                        <div className="summary-value summary-value-highlight">₹{fmt((result as any).totalInterest)}</div>
+                      </div>
+                      <div className="summary-item">
+                        <div className="summary-label">Total Amount Payable</div>
+                        <div className="summary-value" style={{ fontSize: '24px', fontWeight: 800 }}>₹{fmt((result as any).totalPayment)}</div>
                       </div>
                     </>
                   )}
                 </div>
 
                 {/* Donut Chart / Split visualizer */}
-                <div style={{ marginBottom: '24px', background: 'var(--bg)', borderRadius: 'var(--radius-md)', padding: '24px' }}>
+                <div style={{ marginBottom: '24px', background: 'var(--bg)', borderRadius: 'var(--radius-md)', padding: '20px' }}>
                   {mode === 'sip' && (
                     <DonutChart
                       invested={(result as any).invested}
@@ -840,7 +830,7 @@ export default function Home() {
                     <DonutChart
                       invested={(result as any).closingCorpus}
                       withdrawn={(result as any).totalWithdrawn}
-                      totalValue={swpCorpus + (result as any).totalWithdrawn - (result as any).closingCorpus} // approximate total gain/loss
+                      totalValue={swpCorpus + (result as any).totalWithdrawn - (result as any).closingCorpus}
                       centerLabel="Remaining"
                     />
                   )}
@@ -865,16 +855,16 @@ export default function Home() {
 
                 {/* Comparison Mode integration */}
                 <div style={{ borderTop: '1px solid var(--border)', paddingTop: '20px', marginTop: '20px' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 'bold' }}>
-                    <Scale size={16} /> Enable Config Comparison
-                    <input type="checkbox" checked={comparisonEnabled} onChange={(e) => setComparisonEnabled(e.target.checked)} />
+                  <label style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 'bold' }}>
+                    <Scale size={16} style={{ color: 'var(--blue)' }} /> Enable Config Comparison
+                    <input type="checkbox" style={{ marginLeft: '4px' }} checked={comparisonEnabled} onChange={(e) => setComparisonEnabled(e.target.checked)} />
                   </label>
                   
                   {comparisonEnabled && (
                     <div style={{ marginTop: '16px', background: 'var(--bg)', borderRadius: 'var(--radius-md)', padding: '16px' }}>
                       <div style={{ marginBottom: '12px' }}>
                         <span style={{ fontSize: '12px', color: 'var(--slate)' }}>Compare against:</span>
-                        <div style={{ display: 'flex', gap: '12px', marginTop: '4px' }}>
+                        <div style={{ display: 'flex', gap: '12px', marginTop: '4px', flexWrap: 'wrap' }}>
                           <button
                             className={`btn ${compareMetric === 'rate-method' ? 'btn-primary' : 'btn-secondary'}`}
                             onClick={() => setCompareMetric('rate-method')}
@@ -931,8 +921,8 @@ export default function Home() {
                               </tr>
                               <tr>
                                 <td style={{ padding: '6px 0' }}>Est. Returns</td>
-                                <td style={{ textAlign: 'right', color: 'var(--green-deep)' }}>₹{fmt((result as any).estimatedReturns)}</td>
-                                <td style={{ textAlign: 'right', color: 'var(--green-deep)' }}>₹{fmt((comparisonResult as any)?.estimatedReturns || 0)}</td>
+                                <td style={{ textAlign: 'right', color: 'var(--blue)' }}>₹{fmt((result as any).estimatedReturns)}</td>
+                                <td style={{ textAlign: 'right', color: 'var(--blue)' }}>₹{fmt((comparisonResult as any)?.estimatedReturns || 0)}</td>
                               </tr>
                             </>
                           )}
@@ -978,9 +968,9 @@ export default function Home() {
                 />
               </div>
 
-              {/* SEBI disclaimers inside results summary */}
+              {/* SEBI disclaimers inside results summary (no emojis) */}
               <div style={{ fontSize: '11px', color: 'var(--slate)', lineHeight: '1.5', padding: '16px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)' }}>
-                <strong>⚠️ Compliance &amp; Disclosure:</strong><br />
+                <strong>Compliance &amp; Disclosure:</strong><br />
                 {mode === 'emi' ? (
                   "Actual lender terms, interest calculations, processing fees, and floating-rate resets may differ from these illustrative amortizations. Consult your financial provider."
                 ) : (
@@ -1005,10 +995,10 @@ export default function Home() {
         </div>
       </main>
 
-      {/* Footer */}
+      {/* Footer (no emojis) */}
       <footer className="footer">
         <div className="wrap">
-          <div style={{ fontFamily: 'var(--font-mono)' }}>PERCCENT · UNIFIED CALCULATOR · v1.0</div>
+          <div>PERCCENT · UNIFIED CALCULATOR · v1.0</div>
           <div style={{ marginTop: '4px' }}>Perccent Edge Private Limited · ARN 327237 · CIN U62010KA2025PTC198146</div>
         </div>
       </footer>

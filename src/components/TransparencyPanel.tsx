@@ -20,17 +20,17 @@ export default function TransparencyPanel({
       </summary>
       
       <div className="formula-block">
-        <div style={{ fontWeight: 'bold', marginBottom: '8px', color: '#cfe0ff' }}>
+        <div style={{ fontWeight: '700', marginBottom: '8px', color: 'var(--ink)' }}>
           Formula:
         </div>
-        <div style={{ fontSize: '14px', fontFamily: 'var(--font-mono)', lineHeight: 1.5 }}>
+        <div style={{ fontSize: '14px', fontFamily: 'var(--font-mono)', lineHeight: 1.5, color: 'var(--ink)' }}>
           {formula}
         </div>
-        <div style={{ marginTop: '12px', borderTop: '1px solid #1a3675', paddingTop: '8px' }}>
-          <span style={{ color: 'var(--slate)' }}>Resolved variables:</span>
+        <div style={{ marginTop: '12px', borderTop: '1px solid var(--border)', paddingTop: '8px' }}>
+          <span style={{ color: 'var(--slate)', fontSize: '13px', fontWeight: '600' }}>Resolved variables:</span>
           <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', marginTop: '6px' }}>
             {Object.entries(variables).map(([key, val]) => (
-              <span key={key} style={{ fontFamily: 'var(--font-mono)' }}>
+              <span key={key} style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--ink)' }}>
                 <strong>{key}</strong> = {val}
               </span>
             ))}

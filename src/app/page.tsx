@@ -24,8 +24,8 @@ export default function Home() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
   useEffect(() => {
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const initialTheme = systemPrefersDark ? 'dark' : 'light';
+    const savedTheme = localStorage.getItem('perccent-theme') as 'light' | 'dark' | null;
+    const initialTheme = savedTheme || 'light';
     setTheme(initialTheme);
     document.documentElement.setAttribute('data-theme', initialTheme);
   }, []);
@@ -34,6 +34,7 @@ export default function Home() {
     const nextTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(nextTheme);
     document.documentElement.setAttribute('data-theme', nextTheme);
+    localStorage.setItem('perccent-theme', nextTheme);
   };
 
   // Input states

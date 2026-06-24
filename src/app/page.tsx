@@ -20,6 +20,37 @@ export default function Home() {
   const [mode, setMode] = useState<'sip' | 'lumpsum' | 'swp' | 'emi'>('sip');
   const [advancedOpen, setAdvancedOpen] = useState<boolean>(false);
 
+  // Dynamic branding theme accents
+  const accents = useMemo(() => {
+    switch (mode) {
+      case 'sip':
+      case 'lumpsum':
+        return {
+          color: 'var(--green)',
+          hover: '#16b558',
+          text: '#065f46'
+        };
+      case 'swp':
+        return {
+          color: 'var(--amber)',
+          hover: '#d98a0d',
+          text: '#78350f'
+        };
+      case 'emi':
+        return {
+          color: 'var(--blue)',
+          hover: 'var(--blue-deep)',
+          text: '#ffffff'
+        };
+      default:
+        return {
+          color: 'var(--blue)',
+          hover: 'var(--blue-deep)',
+          text: '#ffffff'
+        };
+    }
+  }, [mode]);
+
   // Input states
   // SIP
   const [sipAmount, setSipAmount] = useState<number>(5000);
@@ -451,7 +482,17 @@ export default function Home() {
   }, [mode, sipAmount, sipReturn, sipTenure, stepUpEnabled, stepUpPct, lumpAmount, lumpReturn, lumpTenure, swpCorpus, swpReturn, swpWithdrawal, swpTenure, swpStepUpEnabled, swpStepUpPct, emiAmount, emiRate, emiTenure, isFlatRate, compounding, rateMethod, timing, inflationEnabled, inflationRate, terEnabled, terRate, exitLoadEnabled, exitLoadRate, exitLoadLockInMonths, ltcgEnabled, ltcgExemption, ltcgRate, prepayments, annualEmiIncrease]);
 
   return (
-    <div id="calculator-content" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div
+      id="calculator-content"
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        ['--accent' as any]: accents.color,
+        ['--accent-hover' as any]: accents.hover,
+        ['--accent-text' as any]: accents.text
+      }}
+    >
       {/* Header aligned with company template */}
       <header className="header" style={{ borderBottom: '1px solid var(--border)', background: 'var(--surface)', padding: '16px 0' }}>
         <div className="wrap" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -644,7 +685,7 @@ export default function Home() {
                     border: 'none',
                     padding: '8px 0',
                     cursor: 'pointer',
-                    color: 'var(--blue)',
+                    color: 'var(--accent)',
                     fontWeight: '700',
                     fontSize: '15px',
                     textAlign: 'left'
@@ -889,7 +930,7 @@ export default function Home() {
             <div className="panel-card" style={{ display: 'flex', flexDirection: 'column' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
                 <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--ink)', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
-                  <Scale size={20} style={{ color: 'var(--blue)' }} /> Config Comparison
+                  <Scale size={20} style={{ color: 'var(--accent)' }} /> Config Comparison
                 </h2>
                 <label style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 }}>
                   <input type="checkbox" checked={comparisonEnabled} onChange={(e) => setComparisonEnabled(e.target.checked)} />
@@ -959,8 +1000,8 @@ export default function Home() {
                             </tr>
                             <tr style={{ borderBottom: '1px solid var(--border)' }}>
                               <td style={{ padding: '8px 0' }}>Est. Returns</td>
-                              <td style={{ textAlign: 'right', color: 'var(--blue)' }}>₹{fmt((result as any).estimatedReturns)}</td>
-                              <td style={{ textAlign: 'right', color: 'var(--blue)' }}>₹{fmt((comparisonResult as any)?.estimatedReturns || 0)}</td>
+                              <td style={{ textAlign: 'right', color: 'var(--accent)' }}>₹{fmt((result as any).estimatedReturns)}</td>
+                              <td style={{ textAlign: 'right', color: 'var(--accent)' }}>₹{fmt((comparisonResult as any)?.estimatedReturns || 0)}</td>
                             </tr>
                           </>
                         )}

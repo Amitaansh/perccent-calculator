@@ -141,7 +141,7 @@ export default function SliderInput({
             position: 'absolute',
             left: '0',
             height: '6px',
-            backgroundColor: 'var(--blue)',
+            backgroundColor: 'var(--accent)',
             borderRadius: '6px',
             pointerEvents: 'none',
             width: `${valueToPosition(value)}%`

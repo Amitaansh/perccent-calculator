@@ -13,12 +13,28 @@ import { calculateEMI, Prepayment } from '@/lib/calc/emi';
 import { defaultAdjustments, AdjustmentParams } from '@/lib/calc/adjustments';
 import { getMethodLabel } from '@/lib/calc/rates';
 import { encodeStateToUrl, decodeStateFromUrl, CalculatorState } from '@/utils/urlState';
-import { Share2, Download, Plus, Trash2, Scale, PiggyBank, Wallet, Landmark, CircleDollarSign, Calendar, Coins, Settings } from 'lucide-react';
+import { Share2, Download, Plus, Trash2, Scale, PiggyBank, Wallet, Landmark, CircleDollarSign, Calendar, Coins, Settings, Moon, Sun } from 'lucide-react';
 
 export default function Home() {
   // Active mode
   const [mode, setMode] = useState<'sip' | 'lumpsum' | 'swp' | 'emi'>('sip');
   const [advancedOpen, setAdvancedOpen] = useState<boolean>(false);
+
+  // Theme management
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+
+  useEffect(() => {
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const initialTheme = systemPrefersDark ? 'dark' : 'light';
+    setTheme(initialTheme);
+    document.documentElement.setAttribute('data-theme', initialTheme);
+  }, []);
+
+  const toggleTheme = () => {
+    const nextTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(nextTheme);
+    document.documentElement.setAttribute('data-theme', nextTheme);
+  };
 
   // Input states
   // SIP
@@ -70,8 +86,8 @@ export default function Home() {
   const [ltcgExemption, setLtcgExemption] = useState<number>(125000);
   const [ltcgRate, setLtcgRate] = useState<number>(12.5);
 
-  // Comparison Mode Toggles
-  const [comparisonEnabled, setComparisonEnabled] = useState<boolean>(false);
+  // Comparison Mode
+  const [comparisonEnabled, setComparisonEnabled] = useState<boolean>(true);
   const [compareMetric, setCompareMetric] = useState<'rate-method' | 'timing' | 'step-up' | 'flat-reducing'>('rate-method');
 
   // Load state from URL on initial mount
@@ -466,8 +482,28 @@ export default function Home() {
             <img src="/logo.png" alt="Perccent Logo" style={{ height: '36px', display: 'block' }} />
           </div>
           
-          <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '20px', color: '#1f2937' }}>
-            Financial Calculators
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '20px', color: 'var(--ink)' }}>
+              Financial Calculators
+            </div>
+            <button
+              onClick={toggleTheme}
+              style={{
+                background: 'transparent',
+                border: '1px solid var(--border)',
+                borderRadius: '8px',
+                width: '36px',
+                height: '36px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                color: 'var(--slate)'
+              }}
+              aria-label="Toggle theme"
+            >
+              {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+            </button>
           </div>
         </div>
       </header>
@@ -480,16 +516,16 @@ export default function Home() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '28px' }}>
             {/* Mode Switcher segmented tabs */}
             <div className="segmented-control" style={{ margin: 0 }}>
-              <button className={`tab-btn ${mode === 'sip' ? 'active' : ''}`} onClick={() => { setMode('sip'); setComparisonEnabled(false); }}>
+              <button className={`tab-btn ${mode === 'sip' ? 'active' : ''}`} onClick={() => { setMode('sip'); }}>
                 <PiggyBank size={16} /> SIP
               </button>
-              <button className={`tab-btn ${mode === 'lumpsum' ? 'active' : ''}`} onClick={() => { setMode('lumpsum'); setComparisonEnabled(false); }}>
+              <button className={`tab-btn ${mode === 'lumpsum' ? 'active' : ''}`} onClick={() => { setMode('lumpsum'); }}>
                 <Wallet size={16} /> Lumpsum
               </button>
-              <button className={`tab-btn ${mode === 'swp' ? 'active' : ''}`} onClick={() => { setMode('swp'); setComparisonEnabled(false); }}>
+              <button className={`tab-btn ${mode === 'swp' ? 'active' : ''}`} onClick={() => { setMode('swp'); }}>
                 <CircleDollarSign size={16} /> SWP
               </button>
-              <button className={`tab-btn ${mode === 'emi' ? 'active' : ''}`} onClick={() => { setMode('emi'); setComparisonEnabled(false); }}>
+              <button className={`tab-btn ${mode === 'emi' ? 'active' : ''}`} onClick={() => { setMode('emi'); }}>
                 <Landmark size={16} /> EMI
               </button>
             </div>
@@ -898,14 +934,9 @@ export default function Home() {
                 <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--ink)', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
                   <Scale size={20} style={{ color: 'var(--accent)' }} /> Config Comparison
                 </h2>
-                <label style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 }}>
-                  <input type="checkbox" checked={comparisonEnabled} onChange={(e) => setComparisonEnabled(e.target.checked)} />
-                  Enable
-                </label>
               </div>
 
-              {comparisonEnabled ? (
-                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'var(--bg)', borderRadius: 'var(--radius-md)', padding: '16px' }}>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'var(--bg)', borderRadius: 'var(--radius-md)', padding: '16px' }}>
                   <div style={{ marginBottom: '12px' }}>
                     <span style={{ fontSize: '12px', color: 'var(--slate)', fontWeight: 600 }}>Compare against:</span>
                     <div style={{ display: 'flex', gap: '12px', marginTop: '6px', flexWrap: 'wrap' }}>
@@ -975,8 +1006,8 @@ export default function Home() {
                           <>
                             <tr style={{ borderBottom: '1px solid var(--border)' }}>
                               <td style={{ padding: '8px 0' }}>Total Withdrawn</td>
-                              <td style={{ textAlign: 'right', color: 'var(--amber)' }}>₹{fmt((result as any).totalWithdrawn)}</td>
-                              <td style={{ textAlign: 'right', color: 'var(--amber)' }}>₹{fmt((comparisonResult as any)?.totalWithdrawn || 0)}</td>
+                              <td style={{ textAlign: 'right', color: 'var(--withdrawn)' }}>₹{fmt((result as any).totalWithdrawn)}</td>
+                              <td style={{ textAlign: 'right', color: 'var(--withdrawn)' }}>₹{fmt((comparisonResult as any)?.totalWithdrawn || 0)}</td>
                             </tr>
                             <tr style={{ borderBottom: '1px solid var(--border)' }}>
                               <td style={{ padding: '8px 0' }}>Depletion Month</td>
@@ -994,8 +1025,8 @@ export default function Home() {
                             </tr>
                             <tr style={{ borderBottom: '1px solid var(--border)' }}>
                               <td style={{ padding: '8px 0' }}>Total Interest</td>
-                              <td style={{ textAlign: 'right', color: 'var(--amber)' }}>₹{fmt((result as any).totalInterest)}</td>
-                              <td style={{ textAlign: 'right', color: 'var(--amber)' }}>₹{fmt((comparisonResult as any)?.totalInterest || 0)}</td>
+                              <td style={{ textAlign: 'right', color: 'var(--withdrawn)' }}>₹{fmt((result as any).totalInterest)}</td>
+                              <td style={{ textAlign: 'right', color: 'var(--withdrawn)' }}>₹{fmt((comparisonResult as any)?.totalInterest || 0)}</td>
                             </tr>
                           </>
                         )}
@@ -1003,16 +1034,6 @@ export default function Home() {
                     </table>
                   </div>
                 </div>
-              ) : (
-                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', background: 'var(--bg)', borderRadius: 'var(--radius-md)', padding: '24px', textAlign: 'center', border: '1px dashed var(--border)' }}>
-                  <div style={{ color: 'var(--slate)', fontSize: '13px', marginBottom: '16px', lineHeight: '1.5' }}>
-                    Compare nominal vs effective rates, annuity-due vs ordinary timing, flat vs reducing EMIs, or step-up options side-by-side.
-                  </div>
-                  <button className="btn btn-secondary" onClick={() => setComparisonEnabled(true)} style={{ fontSize: '13px', padding: '8px 14px' }}>
-                    Enable Comparison Mode
-                  </button>
-                </div>
-              )}
             </div>
 
             {/* Right Card: Mathematical Disclosures */}

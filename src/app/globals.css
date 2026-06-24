@@ -14,7 +14,7 @@
   
   --invested: #0047BD;    /* Blue for invested corpus */
   --returns: #3AD77E;     /* Green for returns */
-  --withdrawn: #F5A623;   /* Amber for payouts/interest */
+  --withdrawn: #3AD77E;   /* Green for payouts/interest (no amber) */
   
   --accent: var(--blue);
   --accent-hover: var(--blue-deep);
@@ -28,6 +28,40 @@
   --font-display: var(--font-bricolage), system-ui, sans-serif;
   --font-body: var(--font-inter), system-ui, sans-serif;
   --font-mono: var(--font-jetbrains), monospace;
+}
+
+[data-theme="dark"] {
+  --bg: #0b1020;
+  --surface: #161d33;
+  --border: #1d2942;
+  --blue: #5b8cff;
+  --blue-deep: #3b6fd9;
+  --blue-tint: #1c284b;
+  --ink: #e8eefb;
+  --slate: #9fb0d0;
+  
+  --invested: #5b8cff;
+  --returns: #4ee698;
+  --withdrawn: #4ee698;
+  --green-deep: #3ad685;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b1020;
+    --surface: #161d33;
+    --border: #1d2942;
+    --blue: #5b8cff;
+    --blue-deep: #3b6fd9;
+    --blue-tint: #1c284b;
+    --ink: #e8eefb;
+    --slate: #9fb0d0;
+    
+    --invested: #5b8cff;
+    --returns: #4ee698;
+    --withdrawn: #4ee698;
+    --green-deep: #3ad685;
+  }
 }
 
 /* Reset and base styles */

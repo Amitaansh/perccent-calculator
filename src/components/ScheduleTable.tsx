@@ -165,7 +165,7 @@ export default function ScheduleTable({
           <tr key={`y-${summary.year}`} onClick={() => toggleYear(summary.year)} style={{ cursor: 'pointer', fontWeight: 600, background: 'var(--surface)' }}>
             <td>{isExpanded ? '▼' : '▶'} Year {summary.year}</td>
             <td className="num">{currencySymbol}{fmt(summary.openingBalance)}</td>
-            <td className="num" style={{ color: 'var(--amber)' }}>{currencySymbol}{fmt(summary.totalWithdrawal)}</td>
+            <td className="num" style={{ color: 'var(--withdrawn)' }}>{currencySymbol}{fmt(summary.totalWithdrawal)}</td>
             <td className="num" style={{ color: 'var(--green-deep)' }}>+{currencySymbol}{fmt(summary.totalGrowth)}</td>
             <td className="num">{currencySymbol}{fmt(summary.closingBalance)}</td>
             {showRealValues && (
@@ -181,7 +181,7 @@ export default function ScheduleTable({
             <td>{isExpanded ? '▼' : '▶'} Year {summary.year}</td>
             <td className="num">{currencySymbol}{fmt(summary.openingBalance)}</td>
             <td className="num">{currencySymbol}{fmt(summary.totalEmi)}</td>
-            <td className="num" style={{ color: 'var(--amber)' }}>{currencySymbol}{fmt(summary.totalInterest)}</td>
+            <td className="num" style={{ color: 'var(--withdrawn)' }}>{currencySymbol}{fmt(summary.totalInterest)}</td>
             <td className="num">{currencySymbol}{fmt(summary.totalPrincipal)}</td>
             <td className="num" style={{ color: 'var(--blue)' }}>{currencySymbol}{fmt(summary.totalPrepayment)}</td>
             <td className="num">{currencySymbol}{fmt(summary.closingBalance)}</td>

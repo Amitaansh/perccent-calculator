@@ -182,7 +182,13 @@ export default function GrowthChart({
                 textAnchor="end"
                 style={{ fontFamily: 'var(--font-body)', fontSize: '10px', fill: 'var(--slate)' }}
               >
-                {tick >= 100000 ? `${(tick / 100000).toFixed(0)}L` : formatIndianNumber(tick)}
+                {tick >= 10000000 ? (
+                  `${(tick / 10000000).toFixed(1).replace(/\.0$/, '')}Cr`
+                ) : tick >= 100000 ? (
+                  `${(tick / 100000).toFixed(1).replace(/\.0$/, '')}L`
+                ) : (
+                  formatIndianNumber(tick)
+                )}
               </text>
             </g>
           ))}
@@ -202,12 +208,17 @@ export default function GrowthChart({
             [0, Math.floor(data.length * 0.25), Math.floor(data.length * 0.5), Math.floor(data.length * 0.75), data.length - 1].map((idx, i) => {
               const d = data[idx];
               if (!d) return null;
+
+              let textAnchor: 'start' | 'middle' | 'end' = 'middle';
+              if (idx === 0) textAnchor = "start";
+              else if (idx === data.length - 1) textAnchor = "end";
+
               return (
                 <text
                   key={i}
                   x={getX(idx)}
                   y={height - paddingBottom + 18}
-                  textAnchor="middle"
+                  textAnchor={textAnchor}
                   style={{ fontFamily: 'var(--font-body)', fontSize: '10px', fill: 'var(--slate)' }}
                 >
                   {d.label}

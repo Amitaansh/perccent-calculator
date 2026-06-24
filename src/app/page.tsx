@@ -13,11 +13,12 @@ import { calculateEMI, Prepayment } from '@/lib/calc/emi';
 import { defaultAdjustments, AdjustmentParams } from '@/lib/calc/adjustments';
 import { getMethodLabel } from '@/lib/calc/rates';
 import { encodeStateToUrl, decodeStateFromUrl, CalculatorState } from '@/utils/urlState';
-import { Share2, Download, Plus, Trash2, Scale, PiggyBank, Wallet, Landmark, CircleDollarSign, Calendar, Coins } from 'lucide-react';
+import { Share2, Download, Plus, Trash2, Scale, PiggyBank, Wallet, Landmark, CircleDollarSign, Calendar, Coins, Settings } from 'lucide-react';
 
 export default function Home() {
   // Active mode
   const [mode, setMode] = useState<'sip' | 'lumpsum' | 'swp' | 'emi'>('sip');
+  const [advancedOpen, setAdvancedOpen] = useState<boolean>(false);
 
   // Input states
   // SIP
@@ -454,15 +455,8 @@ export default function Home() {
       {/* Header aligned with company template */}
       <header className="header" style={{ borderBottom: '1px solid var(--border)', background: 'var(--surface)', padding: '16px 0' }}>
         <div className="wrap" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            {/* Curved ribbon pills SVG representing the Perccent logo */}
-            <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="5" y="11" width="18" height="6" rx="3" transform="rotate(-45 14 14)" fill="#3AD77E" />
-              <rect x="5" y="11" width="18" height="6" rx="3" transform="rotate(45 14 14)" fill="#0047BD" />
-            </svg>
-            <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '26px', color: '#0047BD', letterSpacing: '-0.04em' }}>
-              Perccent
-            </span>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <img src="/logo.png" alt="Perccent Logo" style={{ height: '36px', display: 'block' }} />
           </div>
           
           <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '20px', color: '#1f2937' }}>
@@ -636,115 +630,141 @@ export default function Home() {
                 </>
               )}
 
-              {/* Advanced Panel (Always accessible, stacked) */}
-              <div style={{ marginTop: '32px', borderTop: '1px solid var(--border)', paddingTop: '24px' }}>
-                <h3 style={{ marginBottom: '16px' }}>Advanced Settings</h3>
+              {/* Advanced Panel (Expandable accordion) */}
+              <div style={{ marginTop: '28px', borderTop: '1px solid var(--border)', paddingTop: '20px' }}>
+                <button
+                  type="button"
+                  onClick={() => setAdvancedOpen(!advancedOpen)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    width: '100%',
+                    background: 'none',
+                    border: 'none',
+                    padding: '8px 0',
+                    cursor: 'pointer',
+                    color: 'var(--blue)',
+                    fontWeight: '700',
+                    fontSize: '15px',
+                    textAlign: 'left'
+                  }}
+                >
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Settings size={18} /> Advanced Settings &amp; Adjustments
+                  </span>
+                  <span style={{ fontSize: '13px', fontWeight: '600' }}>{advancedOpen ? 'Hide ▴' : 'Show ▾'}</span>
+                </button>
                 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--slate)', marginBottom: '6px' }}>Rate Method</label>
-                    <select
-                      className="input-value-chip"
-                      style={{ width: '100%', textAlign: 'left' }}
-                      value={rateMethod}
-                      onChange={(e) => setRateMethod(e.target.value as any)}
-                    >
-                      <option value="effective">Effective rate</option>
-                      <option value="nominal">Nominal rate</option>
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--slate)', marginBottom: '6px' }}>Compounding Cadence</label>
-                    <select
-                      className="input-value-chip"
-                      style={{ width: '100%', textAlign: 'left' }}
-                      value={compounding}
-                      onChange={(e) => setCompounding(e.target.value as any)}
-                    >
-                      <option value="monthly">Monthly</option>
-                      <option value="quarterly">Quarterly</option>
-                      <option value="annually">Annually</option>
-                      <option value="daily">Daily</option>
-                    </select>
-                  </div>
-                </div>
+                {advancedOpen && (
+                  <div style={{ marginTop: '20px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--slate)', marginBottom: '6px' }}>Rate Method</label>
+                        <select
+                          className="input-value-chip"
+                          style={{ width: '100%', textAlign: 'left' }}
+                          value={rateMethod}
+                          onChange={(e) => setRateMethod(e.target.value as any)}
+                        >
+                          <option value="effective">Effective rate</option>
+                          <option value="nominal">Nominal rate</option>
+                        </select>
+                      </div>
+                      
+                      <div>
+                        <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--slate)', marginBottom: '6px' }}>Compounding Cadence</label>
+                        <select
+                          className="input-value-chip"
+                          style={{ width: '100%', textAlign: 'left' }}
+                          value={compounding}
+                          onChange={(e) => setCompounding(e.target.value as any)}
+                        >
+                          <option value="monthly">Monthly</option>
+                          <option value="quarterly">Quarterly</option>
+                          <option value="annually">Annually</option>
+                          <option value="daily">Daily</option>
+                        </select>
+                      </div>
+                    </div>
 
-                {mode !== 'lumpsum' && (
-                  <div style={{ marginBottom: '24px' }}>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--slate)', marginBottom: '6px' }}>Timing</label>
-                    <select
-                      className="input-value-chip"
-                      style={{ width: '100%', textAlign: 'left' }}
-                      value={timing}
-                      onChange={(e) => setTiming(e.target.value as any)}
-                    >
-                      <option value="begin">Start of Period (Annuity-due)</option>
-                      <option value="end">End of Period (Ordinary)</option>
-                    </select>
+                    {mode !== 'lumpsum' && (
+                      <div style={{ marginBottom: '24px' }}>
+                        <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--slate)', marginBottom: '6px' }}>Timing</label>
+                        <select
+                          className="input-value-chip"
+                          style={{ width: '100%', textAlign: 'left' }}
+                          value={timing}
+                          onChange={(e) => setTiming(e.target.value as any)}
+                        >
+                          <option value="begin">Start of Period (Annuity-due)</option>
+                          <option value="end">End of Period (Ordinary)</option>
+                        </select>
+                      </div>
+                    )}
+
+                    {/* Real-world adjustment layers */}
+                    <h4 style={{ fontSize: '13px', color: 'var(--slate)', marginBottom: '12px' }}>Real-world Adjustment Layers</h4>
+
+                    {/* Inflation */}
+                    <div style={{ marginBottom: '16px' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}>
+                        <input type="checkbox" checked={inflationEnabled} onChange={(e) => setInflationEnabled(e.target.checked)} />
+                        Inflation Adjustments (Default: Off)
+                      </label>
+                      {inflationEnabled && (
+                        <div style={{ marginTop: '8px', paddingLeft: '20px' }}>
+                          <SliderInput label="Annual Inflation Rate" value={inflationRate} min={1} max={20} step={0.5} onChange={setInflationRate} symbol="%" symbolPosition="suffix" labelIcon={<span style={{ fontWeight: 'bold' }}>%</span>} />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* TER */}
+                    <div style={{ marginBottom: '16px' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}>
+                        <input type="checkbox" checked={terEnabled} onChange={(e) => setTerEnabled(e.target.checked)} />
+                        Expense Ratio (TER) (Default: Off)
+                      </label>
+                      {terEnabled && (
+                        <div style={{ marginTop: '8px', paddingLeft: '20px' }}>
+                          <SliderInput label="Annual Expense Ratio" value={terRate} min={0.1} max={5} step={0.05} onChange={setTerRate} symbol="%" symbolPosition="suffix" labelIcon={<span style={{ fontWeight: 'bold' }}>%</span>} />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Exit Load */}
+                    <div style={{ marginBottom: '16px' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}>
+                        <input type="checkbox" checked={exitLoadEnabled} onChange={(e) => setExitLoadEnabled(e.target.checked)} />
+                        Exit Load Haircut (Default: Off)
+                      </label>
+                      {exitLoadEnabled && (
+                        <div style={{ marginTop: '8px', paddingLeft: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                          <SliderInput label="Exit Load Rate" value={exitLoadRate} min={0.1} max={5} step={0.1} onChange={setExitLoadRate} symbol="%" symbolPosition="suffix" labelIcon={<span style={{ fontWeight: 'bold' }}>%</span>} />
+                          <SliderInput label="Lock-in Period" value={exitLoadLockInMonths} min={1} max={36} step={1} onChange={setExitLoadLockInMonths} symbol="mo" symbolPosition="suffix" labelIcon={<Calendar size={15} />} />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* LTCG Tax */}
+                    <div style={{ marginBottom: '16px' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}>
+                        <input type="checkbox" checked={ltcgEnabled} onChange={(e) => setLtcgEnabled(e.target.checked)} />
+                        LTCG Tax on Gains (Default: Off)
+                      </label>
+                      {ltcgEnabled && (
+                        <div style={{ marginTop: '8px', paddingLeft: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                          <SliderInput label="LTCG Exemption" value={ltcgExemption} min={10000} max={500000} step={5000} onChange={setLtcgExemption} symbol="₹" labelIcon={<span style={{ fontWeight: 'bold' }}>₹</span>} />
+                          <SliderInput label="LTCG Tax Rate" value={ltcgRate} min={5} max={30} step={0.5} onChange={setLtcgRate} symbol="%" symbolPosition="suffix" labelIcon={<span style={{ fontWeight: 'bold' }}>%</span>} />
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
-
-                {/* Real-world adjustment layers */}
-                <h4 style={{ fontSize: '13px', color: 'var(--slate)', marginBottom: '12px' }}>Real-world Adjustment Layers</h4>
-
-                {/* Inflation */}
-                <div style={{ marginBottom: '16px' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}>
-                    <input type="checkbox" checked={inflationEnabled} onChange={(e) => setInflationEnabled(e.target.checked)} />
-                    Inflation Adjustments (Default: Off)
-                  </label>
-                  {inflationEnabled && (
-                    <div style={{ marginTop: '8px', paddingLeft: '20px' }}>
-                      <SliderInput label="Annual Inflation Rate" value={inflationRate} min={1} max={20} step={0.5} onChange={setInflationRate} symbol="%" symbolPosition="suffix" labelIcon={<span style={{ fontWeight: 'bold' }}>%</span>} />
-                    </div>
-                  )}
-                </div>
-
-                {/* TER */}
-                <div style={{ marginBottom: '16px' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}>
-                    <input type="checkbox" checked={terEnabled} onChange={(e) => setTerEnabled(e.target.checked)} />
-                    Expense Ratio (TER) (Default: Off)
-                  </label>
-                  {terEnabled && (
-                    <div style={{ marginTop: '8px', paddingLeft: '20px' }}>
-                      <SliderInput label="Annual Expense Ratio" value={terRate} min={0.1} max={5} step={0.05} onChange={setTerRate} symbol="%" symbolPosition="suffix" labelIcon={<span style={{ fontWeight: 'bold' }}>%</span>} />
-                    </div>
-                  )}
-                </div>
-
-                {/* Exit Load */}
-                <div style={{ marginBottom: '16px' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}>
-                    <input type="checkbox" checked={exitLoadEnabled} onChange={(e) => setExitLoadEnabled(e.target.checked)} />
-                    Exit Load Haircut (Default: Off)
-                  </label>
-                  {exitLoadEnabled && (
-                    <div style={{ marginTop: '8px', paddingLeft: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      <SliderInput label="Exit Load Rate" value={exitLoadRate} min={0.1} max={5} step={0.1} onChange={setExitLoadRate} symbol="%" symbolPosition="suffix" labelIcon={<span style={{ fontWeight: 'bold' }}>%</span>} />
-                      <SliderInput label="Lock-in Period" value={exitLoadLockInMonths} min={1} max={36} step={1} onChange={setExitLoadLockInMonths} symbol="mo" symbolPosition="suffix" labelIcon={<Calendar size={15} />} />
-                    </div>
-                  )}
-                </div>
-
-                {/* LTCG Tax */}
-                <div style={{ marginBottom: '16px' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}>
-                    <input type="checkbox" checked={ltcgEnabled} onChange={(e) => setLtcgEnabled(e.target.checked)} />
-                    LTCG Tax on Gains (Default: Off)
-                  </label>
-                  {ltcgEnabled && (
-                    <div style={{ marginTop: '8px', paddingLeft: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      <SliderInput label="LTCG Exemption" value={ltcgExemption} min={10000} max={500000} step={5000} onChange={setLtcgExemption} symbol="₹" labelIcon={<span style={{ fontWeight: 'bold' }}>₹</span>} />
-                      <SliderInput label="LTCG Tax Rate" value={ltcgRate} min={5} max={30} step={0.5} onChange={setLtcgRate} symbol="%" symbolPosition="suffix" labelIcon={<span style={{ fontWeight: 'bold' }}>%</span>} />
-                    </div>
-                  )}
-                </div>
               </div>
             </div>            {/* Right Panel: Results Summary Card only */}
-            <div className="panel-card" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-              <div className="summary-box" style={{ margin: 0, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+            <div className="panel-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', height: '100%' }}>
+              <div className="summary-box" style={{ margin: 0 }}>
                 <div className="summary-title" style={{ fontSize: '18px', fontWeight: 700, color: 'var(--ink)' }}>
                   {mode === 'emi' ? 'Loan Summary' : 'Investment Summary'}
                 </div>

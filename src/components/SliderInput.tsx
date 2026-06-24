@@ -34,8 +34,34 @@ export default function SliderInput({
     setInputValue(String(value));
   }, [value]);
 
+  // Logarithmic scale detection: if range is very large and min is greater than 0
+  const isLog = max / min >= 1000 && min > 0;
+
+  // Convert value to slider position (0 to 100)
+  const valueToPosition = (val: number): number => {
+    if (isLog) {
+      const logMin = Math.log(min);
+      const logMax = Math.log(max);
+      const clampedVal = Math.max(min, Math.min(max, val));
+      return ((Math.log(clampedVal) - logMin) / (logMax - logMin)) * 100;
+    }
+    return ((val - min) / (max - min)) * 100;
+  };
+
+  // Convert slider position (0 to 100) to value
+  const positionToValue = (pos: number): number => {
+    if (isLog) {
+      const logMin = Math.log(min);
+      const logMax = Math.log(max);
+      const val = Math.exp(logMin + (pos / 100) * (logMax - logMin));
+      return Math.round(val / step) * step;
+    }
+    return Math.round((min + (pos / 100) * (max - min)) / step) * step;
+  };
+
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = Number(e.target.value);
+    const pos = Number(e.target.value);
+    const val = positionToValue(pos);
     onChange(val);
     setIsClamped(false);
   };
@@ -75,12 +101,6 @@ export default function SliderInput({
     }
   };
 
-  const formatNumber = (val: string) => {
-    const num = Number(val.replace(/,/g, ''));
-    if (isNaN(num)) return val;
-    return num.toLocaleString('en-IN');
-  };
-
   return (
     <div className="input-group">
       <div className="input-label-row">
@@ -109,10 +129,10 @@ export default function SliderInput({
         <input
           type="range"
           className="slider-input"
-          min={min}
-          max={max}
-          step={step}
-          value={value}
+          min={0}
+          max={100}
+          step={0.01}
+          value={valueToPosition(value)}
           onChange={handleSliderChange}
           aria-label={`${label} slider`}
         />
@@ -124,7 +144,7 @@ export default function SliderInput({
             backgroundColor: 'var(--blue)',
             borderRadius: '6px',
             pointerEvents: 'none',
-            width: `${((value - min) / (max - min)) * 100}%`
+            width: `${valueToPosition(value)}%`
           }}
         />
       </div>

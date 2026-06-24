@@ -20,37 +20,6 @@ export default function Home() {
   const [mode, setMode] = useState<'sip' | 'lumpsum' | 'swp' | 'emi'>('sip');
   const [advancedOpen, setAdvancedOpen] = useState<boolean>(false);
 
-  // Dynamic branding theme accents
-  const accents = useMemo(() => {
-    switch (mode) {
-      case 'sip':
-      case 'lumpsum':
-        return {
-          color: 'var(--green)',
-          hover: '#16b558',
-          text: '#065f46'
-        };
-      case 'swp':
-        return {
-          color: 'var(--amber)',
-          hover: '#d98a0d',
-          text: '#78350f'
-        };
-      case 'emi':
-        return {
-          color: 'var(--blue)',
-          hover: 'var(--blue-deep)',
-          text: '#ffffff'
-        };
-      default:
-        return {
-          color: 'var(--blue)',
-          hover: 'var(--blue-deep)',
-          text: '#ffffff'
-        };
-    }
-  }, [mode]);
-
   // Input states
   // SIP
   const [sipAmount, setSipAmount] = useState<number>(5000);
@@ -487,10 +456,7 @@ export default function Home() {
       style={{
         minHeight: '100vh',
         display: 'flex',
-        flexDirection: 'column',
-        ['--accent' as any]: accents.color,
-        ['--accent-hover' as any]: accents.hover,
-        ['--accent-text' as any]: accents.text
+        flexDirection: 'column'
       }}
     >
       {/* Header aligned with company template */}

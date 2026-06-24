@@ -126,6 +126,31 @@ export default function SliderInput({
         </div>
       </div>
       <div className="slider-wrapper">
+        {/* Grey inactive track base */}
+        <div
+          style={{
+            position: 'absolute',
+            left: '0',
+            right: '0',
+            height: '6px',
+            backgroundColor: 'var(--border)',
+            borderRadius: '6px',
+            pointerEvents: 'none'
+          }}
+        />
+        {/* Colored active track fill (aligned perfectly to thumb center) */}
+        <div
+          style={{
+            position: 'absolute',
+            left: '0',
+            height: '6px',
+            backgroundColor: 'var(--accent)',
+            borderRadius: '6px',
+            pointerEvents: 'none',
+            width: `calc(9px + (100% - 18px) * (${valueToPosition(value)} / 100))`
+          }}
+        />
+        {/* Transparent range input on top for drag interactions */}
         <input
           type="range"
           className="slider-input"
@@ -135,16 +160,10 @@ export default function SliderInput({
           value={valueToPosition(value)}
           onChange={handleSliderChange}
           aria-label={`${label} slider`}
-        />
-        <div
           style={{
-            position: 'absolute',
-            left: '0',
-            height: '6px',
-            backgroundColor: 'var(--accent)',
-            borderRadius: '6px',
-            pointerEvents: 'none',
-            width: `${valueToPosition(value)}%`
+            background: 'transparent',
+            position: 'relative',
+            zIndex: 2
           }}
         />
       </div>

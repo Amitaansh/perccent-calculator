@@ -12,9 +12,9 @@
   --surface: #ffffff;     /* Pure white cards */
   --border: #e5e7eb;      /* Thin border */
   
-  --invested: #4b5563;    /* Grey for invested corpus */
-  --returns: #0047BD;     /* Blue for returns */
-  --withdrawn: #F5A623;
+  --invested: #0047BD;    /* Blue for invested corpus */
+  --returns: #3AD77E;     /* Green for returns */
+  --withdrawn: #F5A623;   /* Amber for payouts/interest */
   
   --radius-sm: 6px;
   --radius-md: 8px;

@@ -36,8 +36,8 @@ export default function DonutChart({
   };
 
   // SVG parameters
-  const size = 180;
-  const strokeWidth = 18;
+  const size = 220; // Increased size to make it a major component
+  const strokeWidth = 22; // Thicker stroke for premium look
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
 
@@ -63,7 +63,8 @@ export default function DonutChart({
   const withdrawnOffset = offset;
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '28px', flexWrap: 'wrap' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px', width: '100%', padding: '12px 0' }}>
+      {/* Centered Large Donut */}
       <div style={{ position: 'relative', width: `${size}px`, height: `${size}px`, flexShrink: 0 }}>
         <svg
           width={size}
@@ -140,32 +141,32 @@ export default function DonutChart({
             padding: '20px'
           }}
         >
-          <span style={{ fontSize: '11px', textTransform: 'uppercase', fontFamily: 'var(--font-body)', color: 'var(--slate)', letterSpacing: '0.05em' }}>
+          <span style={{ fontSize: '12px', textTransform: 'uppercase', fontFamily: 'var(--font-body)', color: 'var(--slate)', letterSpacing: '0.06em', fontWeight: 600 }}>
             {centerLabel}
           </span>
-          <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '18px', color: 'var(--ink)', marginTop: '4px' }}>
+          <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '22px', color: 'var(--ink)', marginTop: '6px', letterSpacing: '-0.02em' }}>
             {currencySymbol}{formatShortIndianNumber(totalValue)}
           </span>
         </div>
       </div>
 
-      {/* Legend */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', flex: '1', minWidth: '160px' }}>
+      {/* Legend below the donut (styled full width of summary) */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%', maxWidth: '300px', borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '14px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ width: '12px', height: '12px', borderRadius: '3px', background: 'var(--invested)' }} />
-            <span style={{ color: 'var(--slate)' }}>Invested</span>
+            <span style={{ color: 'var(--slate)', fontWeight: 500 }}>Invested</span>
           </div>
-          <span className="mono" style={{ fontWeight: 600 }}>{currencySymbol}{formatIndianNumber(invested)}</span>
+          <span style={{ fontWeight: 600, color: 'var(--ink)' }}>{currencySymbol}{formatIndianNumber(invested)}</span>
         </div>
 
         {returns > 0 && (
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '14px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span style={{ width: '12px', height: '12px', borderRadius: '3px', background: 'var(--returns)' }} />
-              <span style={{ color: 'var(--slate)' }}>Est. Returns</span>
+              <span style={{ color: 'var(--slate)', fontWeight: 500 }}>Est. Returns</span>
             </div>
-            <span className="mono" style={{ fontWeight: 600, color: 'var(--green-deep)' }}>{currencySymbol}{formatIndianNumber(returns)}</span>
+            <span style={{ fontWeight: 600, color: 'var(--returns)' }}>{currencySymbol}{formatIndianNumber(returns)}</span>
           </div>
         )}
 
@@ -173,15 +174,15 @@ export default function DonutChart({
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '14px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span style={{ width: '12px', height: '12px', borderRadius: '3px', background: 'var(--withdrawn)' }} />
-              <span style={{ color: 'var(--slate)' }}>{withdrawn === invested ? 'Interest' : 'Payouts'}</span>
+              <span style={{ color: 'var(--slate)', fontWeight: 500 }}>{withdrawn === invested ? 'Interest' : 'Payouts'}</span>
             </div>
-            <span className="mono" style={{ fontWeight: 600 }}>{currencySymbol}{formatIndianNumber(withdrawn)}</span>
+            <span style={{ fontWeight: 600, color: 'var(--withdrawn)' }}>{currencySymbol}{formatIndianNumber(withdrawn)}</span>
           </div>
         )}
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '14px', borderTop: '1px solid var(--border)', paddingTop: '10px', marginTop: '4px' }}>
-          <strong>Total Value</strong>
-          <span className="mono" style={{ fontWeight: 700 }}>{currencySymbol}{formatIndianNumber(totalValue)}</span>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '14px', borderTop: '1px solid var(--border)', paddingTop: '12px', marginTop: '4px' }}>
+          <strong style={{ color: 'var(--ink)' }}>Total Value</strong>
+          <span style={{ fontWeight: 700, color: 'var(--ink)', fontSize: '15px' }}>{currencySymbol}{formatIndianNumber(totalValue)}</span>
         </div>
       </div>
     </div>

@@ -452,7 +452,7 @@ export default function Home() {
   return (
     <div id="calculator-content" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       {/* Header aligned with company template */}
-      <header className="header">
+      <header className="header" style={{ borderBottom: '1px solid var(--border)', background: 'var(--surface)', padding: '16px 0' }}>
         <div className="wrap" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             {/* Curved ribbon pills SVG representing the Perccent logo */}
@@ -460,7 +460,7 @@ export default function Home() {
               <rect x="5" y="11" width="18" height="6" rx="3" transform="rotate(-45 14 14)" fill="#3AD77E" />
               <rect x="5" y="11" width="18" height="6" rx="3" transform="rotate(45 14 14)" fill="#0047BD" />
             </svg>
-            <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '24px', color: '#0047BD', letterSpacing: '-0.03em' }}>
+            <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '26px', color: '#0047BD', letterSpacing: '-0.04em' }}>
               Perccent
             </span>
           </div>
@@ -475,19 +475,10 @@ export default function Home() {
       <main style={{ flex: '1', padding: '32px 0' }}>
         <div className="wrap">
           
-          {/* Action Row containing export/share links */}
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginBottom: '20px' }}>
-            <button className="btn btn-secondary" onClick={copyShareLink} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Share2 size={16} /> Share Config
-            </button>
-            <button className="btn btn-primary" onClick={exportPDF} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Download size={16} /> Download PDF
-            </button>
-          </div>
-
-          {/* Mode Switcher segmented tabs with Lucide icons (no emojis) */}
-          <div className="tabs-container">
-            <div className="segmented-control">
+          {/* Tabs and Actions Row in a single horizontal bar */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '28px' }}>
+            {/* Mode Switcher segmented tabs */}
+            <div className="segmented-control" style={{ margin: 0 }}>
               <button className={`tab-btn ${mode === 'sip' ? 'active' : ''}`} onClick={() => { setMode('sip'); setComparisonEnabled(false); }}>
                 <PiggyBank size={16} /> SIP
               </button>
@@ -499,6 +490,16 @@ export default function Home() {
               </button>
               <button className={`tab-btn ${mode === 'emi' ? 'active' : ''}`} onClick={() => { setMode('emi'); setComparisonEnabled(false); }}>
                 <Landmark size={16} /> EMI
+              </button>
+            </div>
+
+            {/* Action Row containing export/share links */}
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button className="btn btn-secondary" onClick={copyShareLink} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Share2 size={16} /> Share Config
+              </button>
+              <button className="btn btn-primary" onClick={exportPDF} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Download size={16} /> Download PDF
               </button>
             </div>
           </div>
@@ -741,243 +742,279 @@ export default function Home() {
                   )}
                 </div>
               </div>
+            </div>            {/* Right Panel: Results Summary Card only */}
+            <div className="panel-card" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+              <div className="summary-box" style={{ margin: 0, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                <div className="summary-title" style={{ fontSize: '18px', fontWeight: 700, color: 'var(--ink)' }}>
+                  {mode === 'emi' ? 'Loan Summary' : 'Investment Summary'}
+                </div>
+                
+                {/* SIP / Lumpsum summary item list */}
+                {(mode === 'sip' || mode === 'lumpsum') && (
+                  <>
+                    <div className="summary-item">
+                      <div className="summary-label">Total Investment</div>
+                      <div className="summary-value">₹{fmt((result as any).invested)}</div>
+                    </div>
+                    <div className="summary-item">
+                      <div className="summary-label">Estimated Returns</div>
+                      <div className="summary-value summary-value-highlight">₹{fmt((result as any).maturityValueNet - (result as any).invested)}</div>
+                    </div>
+                    <div className="summary-item">
+                      <div className="summary-label">Future Value</div>
+                      <div className="summary-value" style={{ fontSize: '28px', fontWeight: 800 }}>₹{fmt((result as any).maturityValueNet)}</div>
+                    </div>
+                  </>
+                )}
+
+                {/* SWP summary item list */}
+                {mode === 'swp' && (
+                  <>
+                    <div className="summary-item">
+                      <div className="summary-label">Initial Corpus</div>
+                      <div className="summary-value">₹{fmt(swpCorpus)}</div>
+                    </div>
+                    <div className="summary-item">
+                      <div className="summary-label">Total Payouts (Withdrawn)</div>
+                      <div className="summary-value summary-value-highlight">₹{fmt((result as any).totalWithdrawn)}</div>
+                    </div>
+                    <div className="summary-item">
+                      <div className="summary-label">Final Balance (Remaining Corpus)</div>
+                      <div className="summary-value" style={{ fontSize: '28px', fontWeight: 800 }}>₹{fmt((result as any).closingCorpus)}</div>
+                    </div>
+                  </>
+                )}
+
+                {/* EMI summary item list */}
+                {mode === 'emi' && (
+                  <>
+                    <div className="summary-item">
+                      <div className="summary-label">Principal Amount</div>
+                      <div className="summary-value">₹{fmt(emiAmount)}</div>
+                    </div>
+                    <div className="summary-item">
+                      <div className="summary-label">Interest Payable</div>
+                      <div className="summary-value summary-value-highlight">₹{fmt((result as any).totalInterest)}</div>
+                    </div>
+                    <div className="summary-item">
+                      <div className="summary-label">Total Amount Payable</div>
+                      <div className="summary-value" style={{ fontSize: '28px', fontWeight: 800 }}>₹{fmt((result as any).totalPayment)}</div>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Charts Section: Symmetrical layout below Inputs & Summary */}
+          <div className="charts-grid">
+            {/* Left Card: Asset Allocation / Split */}
+            <div className="panel-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--ink)', width: '100%', marginBottom: '16px' }}>
+                {mode === 'emi' ? 'Payment Split' : mode === 'swp' ? 'Withdrawal Split' : 'Asset Allocation'}
+              </h2>
+              <div style={{ width: '100%', background: 'var(--bg)', borderRadius: 'var(--radius-md)', padding: '20px', display: 'flex', justifyContent: 'center' }}>
+                {mode === 'sip' && (
+                  <DonutChart
+                    invested={(result as any).invested}
+                    returns={(result as any).maturityValueNet - (result as any).invested}
+                    totalValue={(result as any).maturityValueNet}
+                    centerLabel="Maturity"
+                  />
+                )}
+                {mode === 'lumpsum' && (
+                  <DonutChart
+                    invested={(result as any).invested}
+                    returns={(result as any).maturityValueNet - (result as any).invested}
+                    totalValue={(result as any).maturityValueNet}
+                    centerLabel="Maturity"
+                  />
+                )}
+                {mode === 'swp' && (
+                  <DonutChart
+                    invested={(result as any).closingCorpus}
+                    withdrawn={(result as any).totalWithdrawn}
+                    totalValue={swpCorpus + (result as any).totalWithdrawn - (result as any).closingCorpus}
+                    centerLabel="Remaining"
+                  />
+                )}
+                {mode === 'emi' && (
+                  <DonutChart
+                    invested={emiAmount}
+                    withdrawn={(result as any).totalInterest}
+                    totalValue={(result as any).totalPayment}
+                    centerLabel="Total Pay"
+                  />
+                )}
+              </div>
             </div>
 
-            {/* Right Panel: Results & Visualization */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
-              
-              {/* Summary Card with Light Blue summary-box layout (matching screenshot 1) */}
-              <div className="panel-card">
-                <div className="summary-box">
-                  <div className="summary-title">
-                    {mode === 'emi' ? 'Loan Summary' : 'Investment Summary'}
-                  </div>
-                  
-                  {/* SIP / Lumpsum summary item list */}
-                  {(mode === 'sip' || mode === 'lumpsum') && (
-                    <>
-                      <div className="summary-item">
-                        <div className="summary-label">Total Investment</div>
-                        <div className="summary-value">₹{fmt((result as any).invested)}</div>
-                      </div>
-                      <div className="summary-item">
-                        <div className="summary-label">Estimated Returns</div>
-                        <div className="summary-value summary-value-highlight">₹{fmt((result as any).maturityValueNet - (result as any).invested)}</div>
-                      </div>
-                      <div className="summary-item">
-                        <div className="summary-label">Future Value</div>
-                        <div className="summary-value" style={{ fontSize: '24px', fontWeight: 800 }}>₹{fmt((result as any).maturityValueNet)}</div>
-                      </div>
-                    </>
-                  )}
+            {/* Right Card: Growth Timeline */}
+            <div className="panel-card" style={{ display: 'flex', flexDirection: 'column' }}>
+              <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--ink)', marginBottom: '16px' }}>
+                {mode === 'swp' ? 'Corpus Depletion Timeline' : mode === 'emi' ? 'Amortization Balance' : 'Growth Projection'}
+              </h2>
+              <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
+                <GrowthChart
+                  data={chartData}
+                  type={mode === 'swp' ? 'depletion-line' : mode === 'emi' ? 'emi-balance' : 'stacked-area'}
+                />
+              </div>
+            </div>
+          </div>
 
-                  {/* SWP summary item list */}
-                  {mode === 'swp' && (
-                    <>
-                      <div className="summary-item">
-                        <div className="summary-label">Initial Corpus</div>
-                        <div className="summary-value">₹{fmt(swpCorpus)}</div>
-                      </div>
-                      <div className="summary-item">
-                        <div className="summary-label">Total Payouts (Withdrawn)</div>
-                        <div className="summary-value summary-value-highlight">₹{fmt((result as any).totalWithdrawn)}</div>
-                      </div>
-                      <div className="summary-item">
-                        <div className="summary-label">Final Balance (Remaining Corpus)</div>
-                        <div className="summary-value" style={{ fontSize: '24px', fontWeight: 800 }}>₹{fmt((result as any).closingCorpus)}</div>
-                      </div>
-                    </>
-                  )}
+          {/* Comparison & Math Disclosures Section */}
+          <div className="comparison-math-grid">
+            {/* Left Card: Configuration Comparison */}
+            <div className="panel-card" style={{ display: 'flex', flexDirection: 'column' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+                <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--ink)', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+                  <Scale size={20} style={{ color: 'var(--blue)' }} /> Config Comparison
+                </h2>
+                <label style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: 600 }}>
+                  <input type="checkbox" checked={comparisonEnabled} onChange={(e) => setComparisonEnabled(e.target.checked)} />
+                  Enable
+                </label>
+              </div>
 
-                  {/* EMI summary item list */}
-                  {mode === 'emi' && (
-                    <>
-                      <div className="summary-item">
-                        <div className="summary-label">Principal Amount</div>
-                        <div className="summary-value">₹{fmt(emiAmount)}</div>
-                      </div>
-                      <div className="summary-item">
-                        <div className="summary-label">Interest Payable</div>
-                        <div className="summary-value summary-value-highlight">₹{fmt((result as any).totalInterest)}</div>
-                      </div>
-                      <div className="summary-item">
-                        <div className="summary-label">Total Amount Payable</div>
-                        <div className="summary-value" style={{ fontSize: '24px', fontWeight: 800 }}>₹{fmt((result as any).totalPayment)}</div>
-                      </div>
-                    </>
-                  )}
-                </div>
-
-                {/* Donut Chart / Split visualizer */}
-                <div style={{ marginBottom: '24px', background: 'var(--bg)', borderRadius: 'var(--radius-md)', padding: '20px' }}>
-                  {mode === 'sip' && (
-                    <DonutChart
-                      invested={(result as any).invested}
-                      returns={(result as any).maturityValueNet - (result as any).invested}
-                      totalValue={(result as any).maturityValueNet}
-                      centerLabel="Maturity"
-                    />
-                  )}
-                  {mode === 'lumpsum' && (
-                    <DonutChart
-                      invested={(result as any).invested}
-                      returns={(result as any).maturityValueNet - (result as any).invested}
-                      totalValue={(result as any).maturityValueNet}
-                      centerLabel="Maturity"
-                    />
-                  )}
-                  {mode === 'swp' && (
-                    <DonutChart
-                      invested={(result as any).closingCorpus}
-                      withdrawn={(result as any).totalWithdrawn}
-                      totalValue={swpCorpus + (result as any).totalWithdrawn - (result as any).closingCorpus}
-                      centerLabel="Remaining"
-                    />
-                  )}
-                  {mode === 'emi' && (
-                    <DonutChart
-                      invested={emiAmount}
-                      withdrawn={(result as any).totalInterest}
-                      totalValue={(result as any).totalPayment}
-                      centerLabel="Total Pay"
-                    />
-                  )}
-                </div>
-
-                {/* Growth visualizer over time */}
-                <div style={{ marginBottom: '24px' }}>
-                  <h3 style={{ marginBottom: '12px' }}>Growth Curve / Depletion over time</h3>
-                  <GrowthChart
-                    data={chartData}
-                    type={mode === 'swp' ? 'depletion-line' : mode === 'emi' ? 'emi-balance' : 'stacked-area'}
-                  />
-                </div>
-
-                {/* Comparison Mode integration */}
-                <div style={{ borderTop: '1px solid var(--border)', paddingTop: '20px', marginTop: '20px' }}>
-                  <label style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 'bold' }}>
-                    <Scale size={16} style={{ color: 'var(--blue)' }} /> Enable Config Comparison
-                    <input type="checkbox" style={{ marginLeft: '4px' }} checked={comparisonEnabled} onChange={(e) => setComparisonEnabled(e.target.checked)} />
-                  </label>
-                  
-                  {comparisonEnabled && (
-                    <div style={{ marginTop: '16px', background: 'var(--bg)', borderRadius: 'var(--radius-md)', padding: '16px' }}>
-                      <div style={{ marginBottom: '12px' }}>
-                        <span style={{ fontSize: '12px', color: 'var(--slate)' }}>Compare against:</span>
-                        <div style={{ display: 'flex', gap: '12px', marginTop: '4px', flexWrap: 'wrap' }}>
-                          <button
-                            className={`btn ${compareMetric === 'rate-method' ? 'btn-primary' : 'btn-secondary'}`}
-                            onClick={() => setCompareMetric('rate-method')}
-                            style={{ padding: '4px 10px', fontSize: '11px' }}
-                          >
-                            Effective vs Nominal
-                          </button>
-                          {mode !== 'lumpsum' && (
-                            <button
-                              className={`btn ${compareMetric === 'timing' ? 'btn-primary' : 'btn-secondary'}`}
-                              onClick={() => setCompareMetric('timing')}
-                              style={{ padding: '4px 10px', fontSize: '11px' }}
-                            >
-                              Annuity vs Ordinary
-                            </button>
-                          )}
-                          {mode === 'sip' && (
-                            <button
-                              className={`btn ${compareMetric === 'step-up' ? 'btn-primary' : 'btn-secondary'}`}
-                              onClick={() => setCompareMetric('step-up')}
-                              style={{ padding: '4px 10px', fontSize: '11px' }}
-                            >
-                              Step-Up vs Flat
-                            </button>
-                          )}
-                          {mode === 'emi' && (
-                            <button
-                              className={`btn ${compareMetric === 'flat-reducing' ? 'btn-primary' : 'btn-secondary'}`}
-                              onClick={() => setCompareMetric('flat-reducing')}
-                              style={{ padding: '4px 10px', fontSize: '11px' }}
-                            >
-                              Flat vs Reducing
-                            </button>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Display results comparison side by side */}
-                      <table style={{ width: '100%', fontSize: '13px', borderCollapse: 'collapse' }}>
-                        <thead>
-                          <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                            <th style={{ textAlign: 'left', padding: '6px 0' }}>Metric</th>
-                            <th style={{ textAlign: 'right' }}>Active Config</th>
-                            <th style={{ textAlign: 'right' }}>Twin Config</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {(mode === 'sip' || mode === 'lumpsum') && (
-                            <>
-                              <tr>
-                                <td style={{ padding: '6px 0' }}>Maturity (Net)</td>
-                                <td style={{ textAlign: 'right', fontWeight: 'bold' }}>₹{fmt((result as any).maturityValueNet)}</td>
-                                <td style={{ textAlign: 'right', fontWeight: 'bold' }}>₹{fmt((comparisonResult as any)?.maturityValueNet || 0)}</td>
-                              </tr>
-                              <tr>
-                                <td style={{ padding: '6px 0' }}>Est. Returns</td>
-                                <td style={{ textAlign: 'right', color: 'var(--blue)' }}>₹{fmt((result as any).estimatedReturns)}</td>
-                                <td style={{ textAlign: 'right', color: 'var(--blue)' }}>₹{fmt((comparisonResult as any)?.estimatedReturns || 0)}</td>
-                              </tr>
-                            </>
-                          )}
-                          {mode === 'swp' && (
-                            <>
-                              <tr>
-                                <td style={{ padding: '6px 0' }}>Total Withdrawn</td>
-                                <td style={{ textAlign: 'right', color: 'var(--amber)' }}>₹{fmt((result as any).totalWithdrawn)}</td>
-                                <td style={{ textAlign: 'right', color: 'var(--amber)' }}>₹{fmt((comparisonResult as any)?.totalWithdrawn || 0)}</td>
-                              </tr>
-                              <tr>
-                                <td style={{ padding: '6px 0' }}>Depletion Month</td>
-                                <td style={{ textAlign: 'right' }}>{(result as any).depletionMonth || 'never'}</td>
-                                <td style={{ textAlign: 'right' }}>{(comparisonResult as any)?.depletionMonth || 'never'}</td>
-                              </tr>
-                            </>
-                          )}
-                          {mode === 'emi' && (
-                            <>
-                              <tr>
-                                <td style={{ padding: '6px 0' }}>Monthly EMI</td>
-                                <td style={{ textAlign: 'right', fontWeight: 'bold' }}>₹{fmt((result as any).emi)}</td>
-                                <td style={{ textAlign: 'right', fontWeight: 'bold' }}>₹{fmt((comparisonResult as any)?.emi || 0)}</td>
-                              </tr>
-                              <tr>
-                                <td style={{ padding: '6px 0' }}>Total Interest</td>
-                                <td style={{ textAlign: 'right', color: 'var(--amber)' }}>₹{fmt((result as any).totalInterest)}</td>
-                                <td style={{ textAlign: 'right', color: 'var(--amber)' }}>₹{fmt((comparisonResult as any)?.totalInterest || 0)}</td>
-                              </tr>
-                            </>
-                          )}
-                        </tbody>
-                      </table>
+              {comparisonEnabled ? (
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'var(--bg)', borderRadius: 'var(--radius-md)', padding: '16px' }}>
+                  <div style={{ marginBottom: '12px' }}>
+                    <span style={{ fontSize: '12px', color: 'var(--slate)', fontWeight: 600 }}>Compare against:</span>
+                    <div style={{ display: 'flex', gap: '12px', marginTop: '6px', flexWrap: 'wrap' }}>
+                      <button
+                        className={`btn ${compareMetric === 'rate-method' ? 'btn-primary' : 'btn-secondary'}`}
+                        onClick={() => setCompareMetric('rate-method')}
+                        style={{ padding: '6px 12px', fontSize: '12px' }}
+                      >
+                        Effective vs Nominal
+                      </button>
+                      {mode !== 'lumpsum' && (
+                        <button
+                          className={`btn ${compareMetric === 'timing' ? 'btn-primary' : 'btn-secondary'}`}
+                          onClick={() => setCompareMetric('timing')}
+                          style={{ padding: '6px 12px', fontSize: '12px' }}
+                        >
+                          Annuity vs Ordinary
+                        </button>
+                      )}
+                      {mode === 'sip' && (
+                        <button
+                          className={`btn ${compareMetric === 'step-up' ? 'btn-primary' : 'btn-secondary'}`}
+                          onClick={() => setCompareMetric('step-up')}
+                          style={{ padding: '6px 12px', fontSize: '12px' }}
+                        >
+                          Step-Up vs Flat
+                        </button>
+                      )}
+                      {mode === 'emi' && (
+                        <button
+                          className={`btn ${compareMetric === 'flat-reducing' ? 'btn-primary' : 'btn-secondary'}`}
+                          onClick={() => setCompareMetric('flat-reducing')}
+                          style={{ padding: '6px 12px', fontSize: '12px' }}
+                        >
+                          Flat vs Reducing
+                        </button>
+                      )}
                     </div>
-                  )}
-                </div>
+                  </div>
 
-                {/* Transparency panel (showing formulas & resolved variables) */}
+                  {/* Display results comparison side by side */}
+                  <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
+                    <table style={{ width: '100%', fontSize: '14px', borderCollapse: 'collapse' }}>
+                      <thead>
+                        <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                          <th style={{ textAlign: 'left', padding: '8px 0', color: 'var(--slate)', fontSize: '11px', textTransform: 'uppercase' }}>Metric</th>
+                          <th style={{ textAlign: 'right', padding: '8px 0', color: 'var(--ink)', fontSize: '11px', textTransform: 'uppercase' }}>Active</th>
+                          <th style={{ textAlign: 'right', padding: '8px 0', color: 'var(--ink)', fontSize: '11px', textTransform: 'uppercase' }}>Twin</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {(mode === 'sip' || mode === 'lumpsum') && (
+                          <>
+                            <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                              <td style={{ padding: '8px 0' }}>Maturity (Net)</td>
+                              <td style={{ textAlign: 'right', fontWeight: 'bold' }}>₹{fmt((result as any).maturityValueNet)}</td>
+                              <td style={{ textAlign: 'right', fontWeight: 'bold' }}>₹{fmt((comparisonResult as any)?.maturityValueNet || 0)}</td>
+                            </tr>
+                            <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                              <td style={{ padding: '8px 0' }}>Est. Returns</td>
+                              <td style={{ textAlign: 'right', color: 'var(--blue)' }}>₹{fmt((result as any).estimatedReturns)}</td>
+                              <td style={{ textAlign: 'right', color: 'var(--blue)' }}>₹{fmt((comparisonResult as any)?.estimatedReturns || 0)}</td>
+                            </tr>
+                          </>
+                        )}
+                        {mode === 'swp' && (
+                          <>
+                            <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                              <td style={{ padding: '8px 0' }}>Total Withdrawn</td>
+                              <td style={{ textAlign: 'right', color: 'var(--amber)' }}>₹{fmt((result as any).totalWithdrawn)}</td>
+                              <td style={{ textAlign: 'right', color: 'var(--amber)' }}>₹{fmt((comparisonResult as any)?.totalWithdrawn || 0)}</td>
+                            </tr>
+                            <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                              <td style={{ padding: '8px 0' }}>Depletion Month</td>
+                              <td style={{ textAlign: 'right' }}>{(result as any).depletionMonth || 'never'}</td>
+                              <td style={{ textAlign: 'right' }}>{(comparisonResult as any)?.depletionMonth || 'never'}</td>
+                            </tr>
+                          </>
+                        )}
+                        {mode === 'emi' && (
+                          <>
+                            <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                              <td style={{ padding: '8px 0' }}>Monthly EMI</td>
+                              <td style={{ textAlign: 'right', fontWeight: 'bold' }}>₹{fmt((result as any).emi)}</td>
+                              <td style={{ textAlign: 'right', fontWeight: 'bold' }}>₹{fmt((comparisonResult as any)?.emi || 0)}</td>
+                            </tr>
+                            <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                              <td style={{ padding: '8px 0' }}>Total Interest</td>
+                              <td style={{ textAlign: 'right', color: 'var(--amber)' }}>₹{fmt((result as any).totalInterest)}</td>
+                              <td style={{ textAlign: 'right', color: 'var(--amber)' }}>₹{fmt((comparisonResult as any)?.totalInterest || 0)}</td>
+                            </tr>
+                          </>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', background: 'var(--bg)', borderRadius: 'var(--radius-md)', padding: '24px', textAlign: 'center', border: '1px dashed var(--border)' }}>
+                  <div style={{ color: 'var(--slate)', fontSize: '13px', marginBottom: '16px', lineHeight: '1.5' }}>
+                    Compare nominal vs effective rates, annuity-due vs ordinary timing, flat vs reducing EMIs, or step-up options side-by-side.
+                  </div>
+                  <button className="btn btn-secondary" onClick={() => setComparisonEnabled(true)} style={{ fontSize: '13px', padding: '8px 14px' }}>
+                    Enable Comparison Mode
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Right Card: Mathematical Disclosures */}
+            <div className="panel-card" style={{ display: 'flex', flexDirection: 'column' }}>
+              <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--ink)', marginBottom: '16px' }}>
+                Mathematical Disclosures
+              </h2>
+              <div style={{ flex: 1 }}>
                 <TransparencyPanel
                   formula={transparencyProps.formula}
                   variables={transparencyProps.variables as unknown as Record<string, string | number>}
                   assumptions={transparencyProps.assumptions}
                 />
               </div>
-
-              {/* SEBI disclaimers inside results summary (no emojis) */}
-              <div style={{ fontSize: '11px', color: 'var(--slate)', lineHeight: '1.5', padding: '16px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)' }}>
-                <strong>Compliance &amp; Disclosure:</strong><br />
-                {mode === 'emi' ? (
-                  "Actual lender terms, interest calculations, processing fees, and floating-rate resets may differ from these illustrative amortizations. Consult your financial provider."
-                ) : (
-                  "These are illustrative estimates based on the assumptions shown and are not guaranteed returns. Mutual fund investments are subject to market risks; read all scheme-related documents carefully."
-                )}
-              </div>
             </div>
+          </div>
+
+          {/* Full-width Compliance & Disclosures Card */}
+          <div className="panel-card" style={{ marginBottom: '28px' }}>
+            <h2 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--ink)', marginBottom: '8px' }}>
+              Compliance &amp; Disclosure
+            </h2>
+            <p style={{ fontSize: '12px', color: 'var(--slate)', lineHeight: '1.6', margin: 0 }}>
+              {mode === 'emi' ? (
+                "Actual lender terms, interest calculations, processing fees, and floating-rate resets may differ from these illustrative amortizations. Consult your financial provider before making borrowing decisions."
+              ) : (
+                "These are illustrative estimates based on the assumptions shown and are not guaranteed returns. Mutual fund investments are subject to market risks; read all scheme-related documents carefully."
+              )}
+            </p>
           </div>
 
           {/* Schedule Table (Year-by-year & Month-by-month breakdown) */}

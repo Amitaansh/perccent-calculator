@@ -108,7 +108,7 @@ export default function SliderInput({
           {labelIcon && <span style={{ display: 'inline-flex', alignItems: 'center', marginRight: '6px' }}>{labelIcon}</span>}
           {label}
         </label>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', width: '120px' }}>
+        <div className="input-chip-wrapper">
           <input
             type="text"
             className="input-value-chip"

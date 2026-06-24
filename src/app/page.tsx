@@ -479,11 +479,11 @@ export default function Home() {
       <header className="header" style={{ borderBottom: '1px solid var(--border)', background: 'var(--surface)', padding: '16px 0' }}>
         <div className="wrap" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <img src="/logo.png" alt="Perccent Logo" style={{ height: '36px', display: 'block' }} />
+            <img src="/logo.png" alt="Perccent Logo" className="header-logo" />
           </div>
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '20px', color: 'var(--ink)' }}>
+            <div className="header-title">
               Financial Calculators
             </div>
             <button
@@ -513,7 +513,7 @@ export default function Home() {
         <div className="wrap">
           
           {/* Tabs and Actions Row in a single horizontal bar */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '28px' }}>
+          <div className="segmented-actions-container">
             {/* Mode Switcher segmented tabs */}
             <div className="segmented-control" style={{ margin: 0 }}>
               <button className={`tab-btn ${mode === 'sip' ? 'active' : ''}`} onClick={() => { setMode('sip'); }}>
@@ -531,7 +531,7 @@ export default function Home() {
             </div>
 
             {/* Action Row containing export/share links */}
-            <div style={{ display: 'flex', gap: '12px' }}>
+            <div className="actions-row">
               <button className="btn btn-secondary" onClick={copyShareLink} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Share2 size={16} /> Share Config
               </button>
@@ -979,54 +979,54 @@ export default function Home() {
 
                   {/* Display results comparison side by side */}
                   <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
-                    <table style={{ width: '100%', fontSize: '14px', borderCollapse: 'collapse' }}>
+                    <table className="comparison-table">
                       <thead>
                         <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                          <th style={{ textAlign: 'left', padding: '8px 0', color: 'var(--slate)', fontSize: '11px', textTransform: 'uppercase' }}>Metric</th>
-                          <th style={{ textAlign: 'right', padding: '8px 0', color: 'var(--ink)', fontSize: '11px', textTransform: 'uppercase' }}>Active</th>
-                          <th style={{ textAlign: 'right', padding: '8px 0', color: 'var(--ink)', fontSize: '11px', textTransform: 'uppercase' }}>Twin</th>
+                          <th style={{ color: 'var(--slate)', fontSize: '11px', textTransform: 'uppercase' }}>Metric</th>
+                          <th style={{ color: 'var(--ink)', fontSize: '11px', textTransform: 'uppercase' }}>Active</th>
+                          <th style={{ color: 'var(--ink)', fontSize: '11px', textTransform: 'uppercase' }}>Twin</th>
                         </tr>
                       </thead>
                       <tbody>
                         {(mode === 'sip' || mode === 'lumpsum') && (
                           <>
                             <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                              <td style={{ padding: '8px 0' }}>Maturity (Net)</td>
-                              <td style={{ textAlign: 'right', fontWeight: 'bold' }}>₹{fmt((result as any).maturityValueNet)}</td>
-                              <td style={{ textAlign: 'right', fontWeight: 'bold' }}>₹{fmt((comparisonResult as any)?.maturityValueNet || 0)}</td>
+                              <td>Maturity (Net)</td>
+                              <td style={{ fontWeight: 'bold' }}>₹{fmt((result as any).maturityValueNet)}</td>
+                              <td style={{ fontWeight: 'bold' }}>₹{fmt((comparisonResult as any)?.maturityValueNet || 0)}</td>
                             </tr>
                             <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                              <td style={{ padding: '8px 0' }}>Est. Returns</td>
-                              <td style={{ textAlign: 'right', color: 'var(--accent)' }}>₹{fmt((result as any).estimatedReturns)}</td>
-                              <td style={{ textAlign: 'right', color: 'var(--accent)' }}>₹{fmt((comparisonResult as any)?.estimatedReturns || 0)}</td>
+                              <td>Est. Returns</td>
+                              <td style={{ color: 'var(--accent)' }}>₹{fmt((result as any).estimatedReturns)}</td>
+                              <td style={{ color: 'var(--accent)' }}>₹{fmt((comparisonResult as any)?.estimatedReturns || 0)}</td>
                             </tr>
                           </>
                         )}
                         {mode === 'swp' && (
                           <>
                             <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                              <td style={{ padding: '8px 0' }}>Total Withdrawn</td>
-                              <td style={{ textAlign: 'right', color: 'var(--withdrawn)' }}>₹{fmt((result as any).totalWithdrawn)}</td>
-                              <td style={{ textAlign: 'right', color: 'var(--withdrawn)' }}>₹{fmt((comparisonResult as any)?.totalWithdrawn || 0)}</td>
+                              <td>Total Withdrawn</td>
+                              <td style={{ color: 'var(--withdrawn)' }}>₹{fmt((result as any).totalWithdrawn)}</td>
+                              <td style={{ color: 'var(--withdrawn)' }}>₹{fmt((comparisonResult as any)?.totalWithdrawn || 0)}</td>
                             </tr>
                             <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                              <td style={{ padding: '8px 0' }}>Depletion Month</td>
-                              <td style={{ textAlign: 'right' }}>{(result as any).depletionMonth || 'never'}</td>
-                              <td style={{ textAlign: 'right' }}>{(comparisonResult as any)?.depletionMonth || 'never'}</td>
+                              <td>Depletion Month</td>
+                              <td>{(result as any).depletionMonth || 'never'}</td>
+                              <td>{(comparisonResult as any)?.depletionMonth || 'never'}</td>
                             </tr>
                           </>
                         )}
                         {mode === 'emi' && (
                           <>
                             <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                              <td style={{ padding: '8px 0' }}>Monthly EMI</td>
-                              <td style={{ textAlign: 'right', fontWeight: 'bold' }}>₹{fmt((result as any).emi)}</td>
-                              <td style={{ textAlign: 'right', fontWeight: 'bold' }}>₹{fmt((comparisonResult as any)?.emi || 0)}</td>
+                              <td>Monthly EMI</td>
+                              <td style={{ fontWeight: 'bold' }}>₹{fmt((result as any).emi)}</td>
+                              <td style={{ fontWeight: 'bold' }}>₹{fmt((comparisonResult as any)?.emi || 0)}</td>
                             </tr>
                             <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                              <td style={{ padding: '8px 0' }}>Total Interest</td>
-                              <td style={{ textAlign: 'right', color: 'var(--withdrawn)' }}>₹{fmt((result as any).totalInterest)}</td>
-                              <td style={{ textAlign: 'right', color: 'var(--withdrawn)' }}>₹{fmt((comparisonResult as any)?.totalInterest || 0)}</td>
+                              <td>Total Interest</td>
+                              <td style={{ color: 'var(--withdrawn)' }}>₹{fmt((result as any).totalInterest)}</td>
+                              <td style={{ color: 'var(--withdrawn)' }}>₹{fmt((comparisonResult as any)?.totalInterest || 0)}</td>
                             </tr>
                           </>
                         )}

@@ -91,6 +91,32 @@ export default function Home() {
   const [comparisonEnabled, setComparisonEnabled] = useState<boolean>(true);
   const [compareMetric, setCompareMetric] = useState<'rate-method' | 'timing' | 'step-up' | 'flat-reducing'>('rate-method');
 
+  // Synchronization handlers to carry forward values between modes
+  const handleMonthlyAmountChange = (val: number) => {
+    setSipAmount(val);
+    setSwpWithdrawal(val);
+  };
+
+  const handleLumpSumAmountChange = (val: number) => {
+    setLumpAmount(val);
+    setSwpCorpus(val);
+    setEmiAmount(val);
+  };
+
+  const handleExpectedReturnChange = (val: number) => {
+    setSipReturn(val);
+    setLumpReturn(val);
+    setSwpReturn(val);
+    setEmiRate(val);
+  };
+
+  const handleTenureChange = (val: number) => {
+    setSipTenure(val);
+    setLumpTenure(val);
+    setSwpTenure(val);
+    setEmiTenure(val);
+  };
+
   // Load state from URL on initial mount
   useEffect(() => {
     if (typeof window !== 'undefined' && window.location.search) {
@@ -550,9 +576,9 @@ export default function Home() {
               {/* Conditional Inputs by Mode with prefix label markers and calendar icons */}
               {mode === 'sip' && (
                 <>
-                  <SliderInput label="Monthly investment" value={sipAmount} min={100} max={10000000} step={500} onChange={setSipAmount} symbol="₹" labelIcon={<span style={{ fontWeight: 'bold' }}>₹</span>} />
-                  <SliderInput label="Expected return rate (% p.a.)" value={sipReturn} min={0} max={40} step={0.5} onChange={setSipReturn} symbol="%" symbolPosition="suffix" labelIcon={<span style={{ fontWeight: 'bold' }}>%</span>} />
-                  <SliderInput label="Investment Duration (Years)" value={sipTenure} min={1} max={50} step={1} onChange={setSipTenure} symbol="yrs" symbolPosition="suffix" labelIcon={<Calendar size={15} />} />
+                  <SliderInput label="Monthly investment" value={sipAmount} min={100} max={10000000} step={500} onChange={handleMonthlyAmountChange} symbol="₹" labelIcon={<span style={{ fontWeight: 'bold' }}>₹</span>} />
+                  <SliderInput label="Expected return rate (% p.a.)" value={sipReturn} min={0} max={40} step={0.5} onChange={handleExpectedReturnChange} symbol="%" symbolPosition="suffix" labelIcon={<span style={{ fontWeight: 'bold' }}>%</span>} />
+                  <SliderInput label="Investment Duration (Years)" value={sipTenure} min={1} max={50} step={1} onChange={handleTenureChange} symbol="yrs" symbolPosition="suffix" labelIcon={<Calendar size={15} />} />
                   
                   {/* Step-up options */}
                   <div style={{ margin: '16px 0 24px', borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
@@ -571,18 +597,18 @@ export default function Home() {
 
               {mode === 'lumpsum' && (
                 <>
-                  <SliderInput label="Total Investment" value={lumpAmount} min={500} max={10000000} step={1000} onChange={setLumpAmount} symbol="₹" labelIcon={<span style={{ fontWeight: 'bold' }}>₹</span>} />
-                  <SliderInput label="Expected return rate (% p.a.)" value={lumpReturn} min={0} max={40} step={0.5} onChange={setLumpReturn} symbol="%" symbolPosition="suffix" labelIcon={<span style={{ fontWeight: 'bold' }}>%</span>} />
-                  <SliderInput label="Investment Duration (Years)" value={lumpTenure} min={1} max={50} step={1} onChange={setLumpTenure} symbol="yrs" symbolPosition="suffix" labelIcon={<Calendar size={15} />} />
+                  <SliderInput label="Total Investment" value={lumpAmount} min={500} max={10000000} step={1000} onChange={handleLumpSumAmountChange} symbol="₹" labelIcon={<span style={{ fontWeight: 'bold' }}>₹</span>} />
+                  <SliderInput label="Expected return rate (% p.a.)" value={lumpReturn} min={0} max={40} step={0.5} onChange={handleExpectedReturnChange} symbol="%" symbolPosition="suffix" labelIcon={<span style={{ fontWeight: 'bold' }}>%</span>} />
+                  <SliderInput label="Investment Duration (Years)" value={lumpTenure} min={1} max={50} step={1} onChange={handleTenureChange} symbol="yrs" symbolPosition="suffix" labelIcon={<Calendar size={15} />} />
                 </>
               )}
 
               {mode === 'swp' && (
                 <>
-                  <SliderInput label="Initial Corpus" value={swpCorpus} min={1000} max={100000000} step={5000} onChange={setSwpCorpus} symbol="₹" labelIcon={<span style={{ fontWeight: 'bold' }}>₹</span>} />
-                  <SliderInput label="Monthly Withdrawal" value={swpWithdrawal} min={100} max={swpCorpus} step={500} onChange={setSwpWithdrawal} symbol="₹" labelIcon={<span style={{ fontWeight: 'bold' }}>₹</span>} />
-                  <SliderInput label="Expected return rate (% p.a.)" value={swpReturn} min={0} max={40} step={0.5} onChange={setSwpReturn} symbol="%" symbolPosition="suffix" labelIcon={<span style={{ fontWeight: 'bold' }}>%</span>} />
-                  <SliderInput label="Withdrawal Duration (Years)" value={swpTenure} min={1} max={50} step={1} onChange={setSwpTenure} symbol="yrs" symbolPosition="suffix" labelIcon={<Calendar size={15} />} />
+                  <SliderInput label="Initial Corpus" value={swpCorpus} min={1000} max={100000000} step={5000} onChange={handleLumpSumAmountChange} symbol="₹" labelIcon={<span style={{ fontWeight: 'bold' }}>₹</span>} />
+                  <SliderInput label="Monthly Withdrawal" value={swpWithdrawal} min={100} max={swpCorpus} step={500} onChange={handleMonthlyAmountChange} symbol="₹" labelIcon={<span style={{ fontWeight: 'bold' }}>₹</span>} />
+                  <SliderInput label="Expected return rate (% p.a.)" value={swpReturn} min={0} max={40} step={0.5} onChange={handleExpectedReturnChange} symbol="%" symbolPosition="suffix" labelIcon={<span style={{ fontWeight: 'bold' }}>%</span>} />
+                  <SliderInput label="Withdrawal Duration (Years)" value={swpTenure} min={1} max={50} step={1} onChange={handleTenureChange} symbol="yrs" symbolPosition="suffix" labelIcon={<Calendar size={15} />} />
                   
                   {/* Step-up options */}
                   <div style={{ margin: '16px 0 24px', borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
@@ -601,9 +627,9 @@ export default function Home() {
 
               {mode === 'emi' && (
                 <>
-                  <SliderInput label="Loan Amount" value={emiAmount} min={1000} max={100000000} step={5000} onChange={setEmiAmount} symbol="₹" labelIcon={<span style={{ fontWeight: 'bold' }}>₹</span>} />
-                  <SliderInput label="Interest Rate (% p.a.)" value={emiRate} min={0} max={36} step={0.1} onChange={setEmiRate} symbol="%" symbolPosition="suffix" labelIcon={<span style={{ fontWeight: 'bold' }}>%</span>} />
-                  <SliderInput label="Loan Tenure (Years)" value={emiTenure} min={1} max={40} step={1} onChange={setEmiTenure} symbol="yrs" symbolPosition="suffix" labelIcon={<Calendar size={15} />} />
+                  <SliderInput label="Loan Amount" value={emiAmount} min={1000} max={100000000} step={5000} onChange={handleLumpSumAmountChange} symbol="₹" labelIcon={<span style={{ fontWeight: 'bold' }}>₹</span>} />
+                  <SliderInput label="Interest Rate (% p.a.)" value={emiRate} min={0} max={36} step={0.1} onChange={handleExpectedReturnChange} symbol="%" symbolPosition="suffix" labelIcon={<span style={{ fontWeight: 'bold' }}>%</span>} />
+                  <SliderInput label="Loan Tenure (Years)" value={emiTenure} min={1} max={40} step={1} onChange={handleTenureChange} symbol="yrs" symbolPosition="suffix" labelIcon={<Calendar size={15} />} />
                   
                   {/* Flat vs Reducing toggle */}
                   <div style={{ margin: '16px 0', display: 'flex', gap: '24px' }}>

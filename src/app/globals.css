@@ -463,8 +463,8 @@ table.breakdown-table td.num {
 .formula-block {
   font-family: var(--font-body); /* Standard sans-serif font for subtext formulas */
   font-size: 14px;
-  background: #f8fafc;
-  color: #1e293b;
+  background: var(--bg);
+  color: var(--ink);
   padding: 16px;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);

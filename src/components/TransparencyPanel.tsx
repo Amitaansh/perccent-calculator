@@ -19,7 +19,7 @@ export default function TransparencyPanel({
         <div style={{ fontWeight: '700', marginBottom: '8px', color: 'var(--ink)', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
           Formula
         </div>
-        <div style={{ fontSize: '15px', fontFamily: 'var(--font-mono)', fontWeight: 600, lineHeight: 1.5, color: 'var(--ink)', padding: '12px', background: 'var(--bg)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)' }}>
+        <div style={{ fontSize: '15px', fontFamily: 'var(--font-mono)', fontWeight: 600, lineHeight: 1.5, color: 'var(--ink)', padding: '12px', background: 'var(--surface)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)' }}>
           {formula}
         </div>
         <div style={{ marginTop: '12px', borderTop: '1px solid var(--border)', paddingTop: '10px' }}>
